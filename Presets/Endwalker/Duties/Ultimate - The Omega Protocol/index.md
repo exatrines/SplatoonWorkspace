@@ -11,7 +11,7 @@ P5の「コードデュナミス・シグマ」と「コードデュナミス・
 
 ![](https://media.discordapp.net/attachments/1489216812674715708/1490963787501535292/image.png?ex=69f795fb&is=69f6447b&hm=387ceb9f2203c9160f2c272f702593cfbe1d83775bb750fcd87fd2438459e1f4&=&format=webp&quality=lossless)
 
-</details><br>
+</details>
 
 以下ルールにてマーカーの付与先を表示します。同じルールに複数名が該当する場合はポジション優先度に従います。
 

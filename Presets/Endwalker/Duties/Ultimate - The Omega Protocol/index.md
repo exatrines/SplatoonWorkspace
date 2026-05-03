@@ -4,7 +4,9 @@
 https://raw.githubusercontent.com/exatrines/Splatoon/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5%20Marking%20Helper.cs
 ```
 
-P5の「コードデュナミス・シグマ」と「コードデュナミス・オメガ」のマーカー付与先をオーバーレイで表示するスクリプトです。自動マーカー付与が使えないときや、リプレイでのマーカー付与のイメージトレーニングに使用してください。\
+P5の「コードデュナミス・シグマ」と「コードデュナミス・オメガ」のマーカー付与先をオーバーレイで表示するスクリプトです。自動マーカー付与が使えないときや、リプレイでのマーカー付与のイメージトレーニングに使用してください。
+
+注意：実際のマーカーの付与は行われません。
 
 <details>
 <summary>Overlay Sample</summary>
@@ -31,8 +33,6 @@ P5の「コードデュナミス・シグマ」と「コードデュナミス・
     2. デュナミスの高揚が3スタックのプレイヤー2名に `BIND` を付与する
     3. 残りのプレイヤー4名に対して、ポジション優先度の上から順に `ATTACK` を付与する
 
-注意：実際のマーカーの付与は行われません。
-
 ### Configration
 Priority設定が必要です。
 #### Show Sigma Helper（LDPU）
@@ -43,7 +43,9 @@ Priority設定が必要です。
 https://raw.githubusercontent.com/exatrines/Splatoon/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5%20Dynamis%20Sigma%20JP%20No%20macro%20Strat.cs
 ```
 
-P5のコードデュナミス・シグマの「マクロ押さない式」のスクリプトです。波動砲およびアーム誘導の散開位置と、処理後にどの塔に行くべきかをガイドします。（ハロワ処理はガイドされません。）
+P5のコードデュナミス・シグマの「マクロ押さない式」のスクリプトです。波動砲およびアーム誘導の散開位置と、処理後にどの塔に行くべきかをガイドします。ハロワ処理はガイドされないので注意が必要です。
+
+注意：このスクリプトを導入する場合、公式スクリプトの[「P5 Dynamis Sigma」](https://github.com/PunishXIV/Splatoon/blob/main/Presets/Endwalker/Duties/Ultimate%20-%20The%20Omega%20Protocol/Phase%205%20-%20Dynamis%20Omega%20-%202.%20Sigma.md)は無効化してください。
 
 ### Configration
 #### Marker Alignment

@@ -894,3 +894,4 @@ namespace SplatoonScriptsOfficial.Duties.Endwalker.The_Omega_Protocol
         }
     }
 }
+

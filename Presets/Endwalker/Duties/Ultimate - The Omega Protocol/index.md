@@ -1,4 +1,21 @@
 # The Omega Protocol
+## P3 Transition
+```
+https://raw.githubusercontent.com/exatrines/Splatoon/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5%20Marking%20Helper.cs
+```
+
+P3の「コロッサスブロー」をフルガイドするスクリプトです。パルス（ドーナツ範囲）のAOEは表示されないので、任意のレイアウトを導入してください。
+
+### Configration
+Priority設定が必要です。
+
+#### Group direction settings
+グループごとにどの方角を使用するかを選択してください。
+
+### Configration Sample
+りりどマクロの場合は以下のような設定となります。
+- Group direction settings: 上から NorthWest, NorthEast, West, SouthWest, SouthEast, East
+
 ## P5 Marking Helper
 ```
 https://raw.githubusercontent.com/exatrines/Splatoon/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5%20Marking%20Helper.cs

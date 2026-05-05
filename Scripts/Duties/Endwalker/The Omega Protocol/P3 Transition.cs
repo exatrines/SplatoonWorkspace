@@ -1,10 +1,14 @@
 using Dalamud.Bindings.ImGui;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using ECommons;
 using ECommons.Configuration;
+using ECommons.GameFunctions;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using ECommons.Hooks.ActionEffectTypes;
-using FFXIVClientStructs.FFXIV.Client.Game;
+using ECommons.Logging;
 using Splatoon;
 using Splatoon.SplatoonScripting;
 using Splatoon.SplatoonScripting.Priority;
@@ -18,88 +22,214 @@ namespace SplatoonScriptsOfficial.Duties.Endwalker.The_Omega_Protocol;
 
 public class P3_Transition : SplatoonScript
 {
+    #region Constants
+
+    /*
+     * テリトリーID
+     * - 絶オメガ検証戦
+     */
     private const uint TerritoryTop = 1122;
+
+    /*
+     * ステータスID
+     * - 狙撃式高出力波動砲: 3426
+     * - 狙撃式波動砲: 3425
+     */
     private const uint StatusSniperCannon = 3426;
     private const uint StatusSniperWave = 3425;
-    private const uint EndTransitionCastId = 31566;
-    private const int MinPartySize = 8;
-    private const int ExpectedSniperCannonCount = 2;
-    private const int ExpectedSniperWaveCount = 4;
-    private const string GuideElementName = "P3TransitionGuide";
+    
+    /*
+     * キャストID
+     * - 連射式波動砲: 31567
+     * - 速射式波動砲: 31568, 31569, 31570
+     */
+    private const uint StartTransitionCastId = 31567;
+    private static readonly uint[] WaveIncrementCastIds = [31568, 31569, 31570];
 
-    private bool _onTransition;
+    /*
+     * データID
+     * - レフトアーム: 0x3D66
+     * - ライトアーム: 0x3D67
+     */
+    private const uint DataIdTriangleMarkerA = 0x3D66;
+    private const uint DataIdTriangleMarkerB = 0x3D67;
+    private const int MarkerCountForTriangleReverse = 3;
+    private const int MarkerCountEndDetermination = 6;
+    private const float MarkerAnchorX = 100f;
+    private const float MarkerAnchorZ = 86f;
+    private const float MarkerPositionEpsilon = 1.5f;
+
+    private const string ElUnDetermined = "UnDetermined";
+    private const string ElLeftOutside = "Left_Determined_Outside";
+    private const string ElLeftInside = "Left_Determined_Inside";
+    private const string ElLeftAvoid = "Left_Determined_Avoid";
+    private const string ElRightOutside = "Right_Determined_Outside";
+    private const string ElRightInside = "Right_Determined_Inside";
+    private const string ElRightAvoid = "Right_Determined_Avoid";
+
+    private static readonly string[] AllWaveOverlayElementNames =
+    [
+        ElUnDetermined,
+        ElLeftOutside,
+        ElLeftInside,
+        ElLeftAvoid,
+        ElRightOutside,
+        ElRightInside,
+        ElRightAvoid,
+    ];
+
+    private const int MaxWaveStage = 6;
+    private const int WaveStageIdle = -1;
+    private const int MinPartySize = 8;
+    private const double RainbowHueCycleSeconds = 4d;
+
+    #endregion
+
+    #region State
+
+    private int _waveStage = WaveStageIdle;
     private GroupAssignment? _debugMyGroup;
     private int _debugPartyCountObjects;
+
+    private TransitionPatternType _transitionPatternType = TransitionPatternType.Unknown;
+    private bool _markerSnapshotCaptured;
+    private bool _markerDeterminationEnded;
+    private int _lastMarkerObjectCount;
+
+    #endregion
 
     public override HashSet<uint>? ValidTerritories => [TerritoryTop];
     public override Metadata? Metadata => new(1, "mirage");
 
     private Config C => Controller.GetConfig<Config>();
 
+    private static bool IsP3TransitionScene(int scene) => scene is 3 or 4;
+
+    #region SplatoonScript lifecycle
+
     public override void OnSetup()
     {
-        Controller.RegisterElementFromCode(
-            GuideElementName,
-            """{"Name":"","radius":2.0,"Donut":0.2,"color":3355508538,"fillIntensity":0.17,"tether":true}""");
-        DisableGuide();
+        RegisterWaveOverlayElements();
+        DisableAllWaveOverlayElements();
+    }
+
+    private void RegisterWaveOverlayElements()
+    {
+        Controller.RegisterElementFromCode(ElUnDetermined,
+            """{"Name":"UnDetermined","Enabled":false,"type":1,"offY":-17.3,"radius":2.17,"thicc":10.0,"fillIntensity":0.5,"refActorDataID":15717,"refActorComparisonType":3,"includeRotation":true,"AdditionalRotation":0.0,"tether":true}""");
+        Controller.RegisterElementFromCode(ElLeftOutside,
+            """{"Name":"Left_Determined_Outside","Enabled":false,"type":1,"offX":3.5,"offY":-18.4,"radius":0.8,"thicc":10.0,"fillIntensity":0.5,"refActorDataID":15717,"refActorComparisonType":3,"includeRotation":true,"AdditionalRotation":0.0,"tether":true}""");
+        Controller.RegisterElementFromCode(ElLeftInside,
+            """{"Name":"Left_Determined_Inside","Enabled":false,"type":1,"offX":3.0,"offY":-16.5,"radius":0.8,"thicc":10.0,"fillIntensity":0.5,"refActorDataID":15717,"refActorComparisonType":3,"includeRotation":true,"AdditionalRotation":0.0,"tether":true}""");
+        Controller.RegisterElementFromCode(ElLeftAvoid,
+            """{"Name":"Left_Determined_Avoid","Enabled":false,"type":1,"offX":-4.5,"offY":-16.0,"radius":0.8,"thicc":10.0,"fillIntensity":0.5,"refActorDataID":15717,"refActorComparisonType":3,"includeRotation":true,"AdditionalRotation":0.0,"tether":true}""");
+        Controller.RegisterElementFromCode(ElRightOutside,
+            """{"Name":"Right_Determined_Outside","Enabled":false,"type":1,"offX":-3.5,"offY":-18.4,"radius":0.8,"thicc":10.0,"fillIntensity":0.5,"refActorDataID":15717,"refActorComparisonType":3,"includeRotation":true,"AdditionalRotation":0.0,"tether":true}""");
+        Controller.RegisterElementFromCode(ElRightInside,
+            """{"Name":"Right_Determined_Inside","Enabled":false,"type":1,"offX":-3.0,"offY":-16.5,"radius":0.8,"thicc":10.0,"fillIntensity":0.5,"refActorDataID":15717,"refActorComparisonType":3,"includeRotation":true,"AdditionalRotation":0.0,"tether":true}""");
+        Controller.RegisterElementFromCode(ElRightAvoid,
+            """{"Name":"Right_Determined_Avoid","Enabled":false,"type":1,"offX":4.5,"offY":-16.0,"radius":0.8,"thicc":10.0,"fillIntensity":0.5,"refActorDataID":15717,"refActorComparisonType":3,"includeRotation":true,"AdditionalRotation":0.0,"tether":true}""");
     }
 
     public override void OnStartingCast(uint source, uint castId)
     {
-        if(castId == EndTransitionCastId)
+        if(castId == StartTransitionCastId)
         {
-            _onTransition = false;
-            DisableGuide();
+            BeginTransitionFromCast();
         }
     }
 
-    public override void OnGainBuffEffect(uint sourceId, Status status)
+    public override void OnActionEffectEvent(ActionEffectSet set)
     {
-        if(status.StatusId != StatusSniperCannon && status.StatusId != StatusSniperWave) return;
-        if(_onTransition) return;
+        if(_waveStage == WaveStageIdle) return;
+        if(!IsP3TransitionScene(Controller.Scene)) return;
+        if(set.Action == null || set.Source == null) return;
+        if(set.Source is not IBattleNpc sourceBattleNpc) return;
+        if(sourceBattleNpc.ObjectKind != ObjectKind.BattleNpc && sourceBattleNpc.ObjectKind != ObjectKind.EventNpc) return;
 
-        TryBeginTransitionByDebuffs();
+        var actionId = set.Action.Value.RowId;
+
+        if(!WaveIncrementCastIds.Contains(actionId)) return;
+
+        _waveStage = Math.Min(_waveStage + 1, MaxWaveStage);
+        PluginLog.Information($"[P3 Transition] Wave via ActionEffect actionId={actionId}, waveStage={_waveStage}, sourceDataId={sourceBattleNpc.DataId}");
+
+        if(_waveStage == MaxWaveStage) EndTransitionPhase();
+    }
+
+    private void EndTransitionPhase()
+    {
+        DisableAllWaveOverlayElements();
+        _waveStage = WaveStageIdle;
+        ResetTransitionPatternState();
+    }
+
+    private void BeginTransitionFromCast()
+    {
+        if(!IsP3TransitionScene(Controller.Scene)) return;
+        if(_waveStage != WaveStageIdle) return;
+
+        _waveStage = 0;
+        ResetTransitionPatternState();
     }
 
     public override void OnUpdate()
     {
+        if(!IsP3TransitionScene(Controller.Scene))
+        {
+            if(_waveStage != WaveStageIdle) EndTransitionPhase();
+            return;
+        }
+
         UpdateDebugMyGroup();
+        UpdateTransitionPatternMarkers();
         ApplyGuideVisibility();
     }
 
     public override void OnReset()
     {
-        _onTransition = false;
+        _waveStage = WaveStageIdle;
         _debugMyGroup = null;
-        DisableGuide();
+        ResetTransitionPatternState();
+        DisableAllWaveOverlayElements();
     }
+
+    #endregion
 
     public override void OnSettingsDraw()
     {
+        ImGui.Text("Priority settings");
         C.PriorityData.Draw();
+
+        ImGui.Text("\nGroup direction settings");
         DrawDirectionSelector("Stack1 (High 1 + None 1)", GroupAssignment.Stack1);
         DrawDirectionSelector("Stack2 (High 2 + None 2)", GroupAssignment.Stack2);
         DrawDirectionSelector("Spread1", GroupAssignment.Spread1);
         DrawDirectionSelector("Spread2", GroupAssignment.Spread2);
         DrawDirectionSelector("Spread3", GroupAssignment.Spread3);
         DrawDirectionSelector("Spread4", GroupAssignment.Spread4);
-        ImGui.Separator();
+
         if(ImGui.CollapsingHeader("Debug"))
         {
-            ImGui.Text($"OnTransition: {_onTransition}");
+            ImGui.Text($"Wave stage ({WaveStageIdle} = idle / NotTransition): {_waveStage}");
+            ImGui.Text($"Phase: {GetTransitionPhaseState()}");
             ImGui.Text($"BasePlayer: {BasePlayer?.Name.ToString() ?? "Unknown"}");
             ImGui.Text($"My Group: {_debugMyGroup?.ToString() ?? "Unknown"}");
+            ImGui.Text($"Type: {_transitionPatternType}");
+            ImGui.Text($"Controller.Scene (3 or 4): {Controller.Scene}");
         }
     }
 
+    #region Settings UI
+
     private void DrawDirectionSelector(string label, GroupAssignment group)
     {
-        var value = C.GroupDirection[group];
-        if(ImGui.BeginCombo(label, value.ToString()))
+        var currentDirectionSpot = C.GroupDirection[group];
+        if(ImGui.BeginCombo(label, currentDirectionSpot.ToString()))
         {
             foreach(var spot in Enum.GetValues<DirectionSpot>())
             {
-                var selected = value == spot;
+                var selected = currentDirectionSpot == spot;
                 if(ImGui.Selectable(spot.ToString(), selected))
                 {
                     C.GroupDirection[group] = spot;
@@ -112,69 +242,120 @@ public class P3_Transition : SplatoonScript
         }
     }
 
-    private void ShowGuideForLocalPlayer()
+    #endregion
+
+    #region Phase and marker logic
+
+    private TransitionPhaseState GetTransitionPhaseState()
     {
-        if(!_onTransition) return;
+        if(_waveStage == WaveStageIdle) return TransitionPhaseState.NotTransition;
 
-        if(!TryResolveCurrentAssignment(out var assignment)) return;
-        if(assignment == null) return;
+        if(_waveStage >= 1)
+        {
+            return _waveStage switch
+            {
+                1 => TransitionPhaseState.Wave1,
+                2 => TransitionPhaseState.Wave2,
+                3 => TransitionPhaseState.Wave3,
+                4 => TransitionPhaseState.Wave4,
+                5 => TransitionPhaseState.Wave5,
+                6 => TransitionPhaseState.Wave6,
+            };
+        }
 
-        var direction = C.GroupDirection[assignment.Value];
-        ShowGuideAt(DirectionPositions[direction]);
+        if(_transitionPatternType != TransitionPatternType.Unknown) return TransitionPhaseState.DeterminedGuide;
+
+        return TransitionPhaseState.UnDeterminedGuide;
     }
 
-    private void TryBeginTransitionByDebuffs()
+    private void UpdateTransitionPatternMarkers()
     {
-        var party = GetPartyMembers();
-        if(party.Count < MinPartySize) return;
+        if(_waveStage == WaveStageIdle || _markerDeterminationEnded) return;
 
-        var highCount = party.Count(x => HasStatus(x, StatusSniperCannon));
-        var waveCount = party.Count(x => HasStatus(x, StatusSniperWave));
-        if(highCount != ExpectedSniperCannonCount || waveCount != ExpectedSniperWaveCount) return;
+        var markers = Svc.Objects
+            .Where(x => x.DataId.EqualsAny<uint>(DataIdTriangleMarkerA, DataIdTriangleMarkerB))
+            .Where(IsTransitionMarkerEligible)
+            .ToList();
 
-        _onTransition = true;
-        ShowGuideForLocalPlayer();
+        _lastMarkerObjectCount = markers.Count;
+
+        if(!_markerSnapshotCaptured && markers.Count >= MarkerCountForTriangleReverse)
+        {
+            _markerSnapshotCaptured = true;
+            var hasAnchor = markers.Any(IsAtTriangleAnchorPosition);
+            _transitionPatternType = hasAnchor ? TransitionPatternType.Triangle : TransitionPatternType.Reverse;
+        }
+
+        if(markers.Count >= MarkerCountEndDetermination)
+        {
+            _markerDeterminationEnded = true;
+        }
     }
+
+    private static bool IsAtTriangleAnchorPosition(IGameObject obj)
+    {
+        var position = obj.Position;
+        return MathF.Abs(position.X - MarkerAnchorX) < MarkerPositionEpsilon && MathF.Abs(position.Z - MarkerAnchorZ) < MarkerPositionEpsilon;
+    }
+
+    private static bool IsTransitionMarkerEligible(IGameObject obj)
+    {
+        if(obj.EntityId == 0) return false;
+
+        return obj is ICharacter character && character.IsCharacterVisible();
+    }
+
+    private void ResetTransitionPatternState()
+    {
+        _transitionPatternType = TransitionPatternType.Unknown;
+        _markerSnapshotCaptured = false;
+        _markerDeterminationEnded = false;
+        _lastMarkerObjectCount = 0;
+    }
+
+    #endregion
+
+    #region Party role resolution
 
     private List<IPlayerCharacter> GetPartyMembers()
     {
-        var objectParty = Svc.Objects
+        var partyMembersSortedByDistance = Svc.Objects
             .OfType<IPlayerCharacter>()
             .Where(x => !x.IsDead && x.CurrentHp > 0)
             .OrderBy(x => Vector3.Distance(x.Position, Player.Object?.Position ?? x.Position))
             .Take(MinPartySize)
             .ToList();
-        _debugPartyCountObjects = objectParty.Count;
-        return objectParty;
+        _debugPartyCountObjects = partyMembersSortedByDistance.Count;
+        return partyMembersSortedByDistance;
     }
 
     private bool TryResolveCurrentAssignment(out GroupAssignment? assignment)
     {
         assignment = null;
-        var party = GetPartyMembers();
-        if(party.Count < MinPartySize) return false;
+        var partyMembers = GetPartyMembers();
+        if(partyMembers.Count < MinPartySize) return false;
 
         var targetPlayer = GetProcessingPlayer();
         if(targetPlayer == null) return false;
 
-        assignment = ResolveGroupAssignment(targetPlayer.EntityId, party);
+        assignment = ResolveGroupAssignment(targetPlayer.EntityId, partyMembers);
         return true;
     }
 
-    private GroupAssignment? ResolveGroupAssignment(uint localEntityId, List<IPlayerCharacter> party)
+    private GroupAssignment? ResolveGroupAssignment(uint localPlayerEntityId, IReadOnlyList<IPlayerCharacter> partyMembers)
     {
-        var high = OrderByPriority(party.Where(x => HasStatus(x, StatusSniperCannon))).ToList();
-        var spread = OrderByPriority(party.Where(x => HasStatus(x, StatusSniperWave))).ToList();
-        var none = OrderByPriority(party.Where(x => !HasStatus(x, StatusSniperCannon) && !HasStatus(x, StatusSniperWave))).ToList();
+        var sniperCannonOrdered = OrderByPriority(partyMembers.Where(x => HasStatus(x, StatusSniperCannon))).ToList();
+        var sniperWaveOrdered = OrderByPriority(partyMembers.Where(x => HasStatus(x, StatusSniperWave))).ToList();
+        var neitherDebuffOrdered = OrderByPriority(partyMembers.Where(x => !HasStatus(x, StatusSniperCannon) && !HasStatus(x, StatusSniperWave))).ToList();
 
-        if(high.Count >= 1 && high[0].EntityId == localEntityId) return GroupAssignment.Stack1;
-        if(high.Count >= 2 && high[1].EntityId == localEntityId) return GroupAssignment.Stack2;
-        if(none.Count >= 1 && none[0].EntityId == localEntityId) return GroupAssignment.Stack1;
-        if(none.Count >= 2 && none[1].EntityId == localEntityId) return GroupAssignment.Stack2;
-        if(spread.Count >= 1 && spread[0].EntityId == localEntityId) return GroupAssignment.Spread1;
-        if(spread.Count >= 2 && spread[1].EntityId == localEntityId) return GroupAssignment.Spread2;
-        if(spread.Count >= 3 && spread[2].EntityId == localEntityId) return GroupAssignment.Spread3;
-        if(spread.Count >= 4 && spread[3].EntityId == localEntityId) return GroupAssignment.Spread4;
+        if(sniperCannonOrdered.Count >= 1 && sniperCannonOrdered[0].EntityId == localPlayerEntityId) return GroupAssignment.Stack1;
+        if(sniperCannonOrdered.Count >= 2 && sniperCannonOrdered[1].EntityId == localPlayerEntityId) return GroupAssignment.Stack2;
+        if(neitherDebuffOrdered.Count >= 1 && neitherDebuffOrdered[0].EntityId == localPlayerEntityId) return GroupAssignment.Stack1;
+        if(neitherDebuffOrdered.Count >= 2 && neitherDebuffOrdered[1].EntityId == localPlayerEntityId) return GroupAssignment.Stack2;
+        if(sniperWaveOrdered.Count >= 1 && sniperWaveOrdered[0].EntityId == localPlayerEntityId) return GroupAssignment.Spread1;
+        if(sniperWaveOrdered.Count >= 2 && sniperWaveOrdered[1].EntityId == localPlayerEntityId) return GroupAssignment.Spread2;
+        if(sniperWaveOrdered.Count >= 3 && sniperWaveOrdered[2].EntityId == localPlayerEntityId) return GroupAssignment.Spread3;
+        if(sniperWaveOrdered.Count >= 4 && sniperWaveOrdered[3].EntityId == localPlayerEntityId) return GroupAssignment.Spread4;
 
         return null;
     }
@@ -191,13 +372,13 @@ public class P3_Transition : SplatoonScript
 
     private int GetPriorityIndex(IPlayerCharacter player)
     {
-        var priority = C.PriorityData.GetPlayers(_ => true)?.ToList();
-        if(priority == null) return int.MaxValue;
+        var priorityList = C.PriorityData.GetPlayers(_ => true)?.ToList();
+        if(priorityList == null) return int.MaxValue;
 
         var name = player.Name.ToString();
-        for(var i = 0; i < priority.Count; i++)
+        for(var index = 0; index < priorityList.Count; index++)
         {
-            if(priority[i].Name == name) return i;
+            if(priorityList[index].Name == name) return index;
         }
 
         return int.MaxValue;
@@ -206,40 +387,192 @@ public class P3_Transition : SplatoonScript
     private static bool HasStatus(IPlayerCharacter player, uint statusId)
         => player.StatusList.Any(x => x.StatusId == statusId);
 
+    #endregion
+
+    #region Wave overlay
+
     private void ApplyGuideVisibility()
     {
-        if(_onTransition) ShowGuideForLocalPlayer();
-        else DisableGuide();
+        if(_waveStage != WaveStageIdle) UpdateWaveOverlayVisibility();
+        else DisableAllWaveOverlayElements();
     }
 
-    private void ShowGuideAt(Vector2 position)
+    private void DisableAllWaveOverlayElements()
     {
-        if(!Controller.TryGetElementByName(GuideElementName, out var element)) return;
-
-        element.Enabled = true;
-        element.tether = true;
-        element.refX = position.X;
-        element.refY = position.Y;
-        element.refZ = 0f;
-    }
-
-    private void DisableGuide()
-    {
-        if(Controller.TryGetElementByName(GuideElementName, out var element))
+        foreach(var elementName in AllWaveOverlayElementNames)
         {
-            element.Enabled = false;
+            if(Controller.TryGetElementByName(elementName, out var element))
+            {
+                element.Enabled = false;
+                element.tether = false;
+            }
         }
     }
 
-    private static readonly Dictionary<DirectionSpot, Vector2> DirectionPositions = new()
+    private void UpdateWaveOverlayVisibility()
     {
-        [DirectionSpot.NorthEast] = new(107.0f, 83.0f),
-        [DirectionSpot.East] = new(118.0f, 100.0f),
-        [DirectionSpot.SouthEast] = new(107.0f, 116.5f),
-        [DirectionSpot.SouthWest] = new(93.0f, 116.5f),
-        [DirectionSpot.West] = new(82.0f, 100.0f),
-        [DirectionSpot.NorthWest] = new(93.0f, 83.0f),
-    };
+        if(_waveStage == WaveStageIdle) return;
+
+        _ = TryResolveCurrentAssignment(out var resolvedGroupAssignment);
+        var directionSpot = resolvedGroupAssignment != null ? C.GroupDirection[resolvedGroupAssignment.Value] : DirectionSpot.NorthEast;
+        var additionalRotationRadians = DirectionSpotToAdditionalRotation(directionSpot);
+
+        DisableAllWaveOverlayElements();
+
+        if(_waveStage >= MaxWaveStage)
+        {
+            return;
+        }
+
+        if(_waveStage >= 1)
+        {
+            switch(_waveStage)
+            {
+                case 1:
+                case 3:
+                case 4:
+                    EnableDeterminedSideGuide(DeterminedSideGuideKind.Outside, additionalRotationRadians, directionSpot);
+                    break;
+                case 2:
+                    EnableDeterminedSideGuide(DeterminedSideGuideKind.Inside, additionalRotationRadians, directionSpot);
+                    break;
+                case 5:
+                    EnableDeterminedSideGuide(DeterminedSideGuideKind.Avoid, additionalRotationRadians, directionSpot);
+                    break;
+            }
+
+            return;
+        }
+
+        switch(GetTransitionPhaseState())
+        {
+            case TransitionPhaseState.UnDeterminedGuide:
+                SetNonWaveOverlayElement(ElUnDetermined, additionalRotationRadians);
+                break;
+            case TransitionPhaseState.DeterminedGuide:
+                EnableDeterminedSideGuide(DeterminedSideGuideKind.Outside, additionalRotationRadians, directionSpot);
+                break;
+        }
+    }
+
+    private void EnableDeterminedSideGuide(DeterminedSideGuideKind guideKind, float additionalRotationRadians, DirectionSpot directionSpot)
+    {
+        var displaySide = ResolveDisplaySide(directionSpot, _transitionPatternType);
+        var elementName = displaySide == DisplaySide.Left
+            ? guideKind switch
+            {
+                DeterminedSideGuideKind.Outside => ElLeftOutside,
+                DeterminedSideGuideKind.Inside => ElLeftInside,
+                DeterminedSideGuideKind.Avoid => ElLeftAvoid,
+            }
+            : guideKind switch
+            {
+                DeterminedSideGuideKind.Outside => ElRightOutside,
+                DeterminedSideGuideKind.Inside => ElRightInside,
+                DeterminedSideGuideKind.Avoid => ElRightAvoid,
+            };
+        SetNonWaveOverlayElement(elementName, additionalRotationRadians);
+    }
+
+    private static float DirectionSpotToAdditionalRotation(DirectionSpot spot)
+        => spot switch
+        {
+            DirectionSpot.NorthEast => DegreesToRadians(30f),
+            DirectionSpot.East => DegreesToRadians(90f),
+            DirectionSpot.SouthEast => DegreesToRadians(150f),
+            DirectionSpot.SouthWest => DegreesToRadians(210f),
+            DirectionSpot.West => DegreesToRadians(270f),
+            DirectionSpot.NorthWest => DegreesToRadians(330f),
+            _ => 0f,
+        };
+
+    private static float DegreesToRadians(float deg) => deg * (MathF.PI / 180f);
+
+    private void SetNonWaveOverlayElement(string elementName, float? additionalRotationRadians)
+    {
+        if(!Controller.TryGetElementByName(elementName, out var element)) return;
+        element.Enabled = true;
+        element.tether = true;
+        element.color = GetRainbowColor(RainbowHueCycleSeconds).ToUint();
+        if(additionalRotationRadians.HasValue)
+        {
+            element.AdditionalRotation = additionalRotationRadians.Value;
+        }
+    }
+
+    private Vector4 GetRainbowColor(double cycleSeconds)
+    {
+        if(cycleSeconds <= 0d)
+        {
+            cycleSeconds = 1d;
+        }
+
+        var tickMilliseconds = Environment.TickCount64;
+        var normalizedTime = tickMilliseconds / 1000d / cycleSeconds;
+        var hue = normalizedTime % 1f;
+        return HsvToVector4(hue, 1f, 1f);
+    }
+
+    private static Vector4 HsvToVector4(double h, double s, double v)
+    {
+        double r = 0f, g = 0f, b = 0f;
+        var i = (int)(h * 6f);
+        var f = h * 6f - i;
+        var p = v * (1f - s);
+        var q = v * (1f - f * s);
+        var t = v * (1f - (1f - f) * s);
+
+        switch(i % 6)
+        {
+            case 0: r = v; g = t; b = p; break;
+            case 1: r = q; g = v; b = p; break;
+            case 2: r = p; g = v; b = t; break;
+            case 3: r = p; g = q; b = v; break;
+            case 4: r = t; g = p; b = v; break;
+            case 5: r = v; g = p; b = q; break;
+        }
+
+        return new Vector4((float)r, (float)g, (float)b, 1f);
+    }
+
+    private static DisplaySide ResolveDisplaySide(DirectionSpot spot, TransitionPatternType patternType)
+    {
+        if(patternType == TransitionPatternType.Reverse)
+        {
+            return spot switch
+            {
+                DirectionSpot.NorthEast => DisplaySide.Left,
+                DirectionSpot.East => DisplaySide.Right,
+                DirectionSpot.SouthEast => DisplaySide.Left,
+                DirectionSpot.SouthWest => DisplaySide.Right,
+                DirectionSpot.West => DisplaySide.Left,
+                DirectionSpot.NorthWest => DisplaySide.Right,
+                _ => DisplaySide.Right,
+            };
+        }
+
+        return spot switch
+        {
+            DirectionSpot.NorthEast => DisplaySide.Right,
+            DirectionSpot.East => DisplaySide.Left,
+            DirectionSpot.SouthEast => DisplaySide.Right,
+            DirectionSpot.SouthWest => DisplaySide.Left,
+            DirectionSpot.West => DisplaySide.Right,
+            DirectionSpot.NorthWest => DisplaySide.Left,
+            _ => DisplaySide.Right,
+        };
+    }
+
+    #endregion
+
+    #region Types and configuration
+
+    private enum DeterminedSideGuideKind
+    {
+        Outside,
+        Inside,
+        Avoid,
+    }
 
     private enum GroupAssignment
     {
@@ -261,18 +594,45 @@ public class P3_Transition : SplatoonScript
         NorthWest,
     }
 
+    private enum DisplaySide
+    {
+        Left,
+        Right,
+    }
+
+    private enum TransitionPatternType
+    {
+        Unknown,
+        Triangle,
+        Reverse,
+    }
+
+    private enum TransitionPhaseState
+    {
+        NotTransition,
+        UnDeterminedGuide,
+        DeterminedGuide,
+        Wave1,
+        Wave2,
+        Wave3,
+        Wave4,
+        Wave5,
+        Wave6,
+    }
+
     private class Config : IEzConfig
     {
         public PriorityData PriorityData = new();
         public Dictionary<GroupAssignment, DirectionSpot> GroupDirection = new()
         {
-            [GroupAssignment.Stack1] = DirectionSpot.NorthEast,
-            [GroupAssignment.Stack2] = DirectionSpot.NorthWest,
-            [GroupAssignment.Spread1] = DirectionSpot.East,
-            [GroupAssignment.Spread2] = DirectionSpot.SouthEast,
-            [GroupAssignment.Spread3] = DirectionSpot.SouthWest,
-            [GroupAssignment.Spread4] = DirectionSpot.West,
+            [GroupAssignment.Stack1] = DirectionSpot.NorthWest,
+            [GroupAssignment.Stack2] = DirectionSpot.NorthEast,
+            [GroupAssignment.Spread1] = DirectionSpot.West,
+            [GroupAssignment.Spread2] = DirectionSpot.SouthWest,
+            [GroupAssignment.Spread3] = DirectionSpot.SouthEast,
+            [GroupAssignment.Spread4] = DirectionSpot.East,
         };
     }
-}
 
+    #endregion
+}

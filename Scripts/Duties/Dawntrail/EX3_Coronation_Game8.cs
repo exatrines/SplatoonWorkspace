@@ -24,6 +24,7 @@ public unsafe class EX3_Coronation_Game8 : SplatoonScript
 
     private const uint CoronationBitDataId = 18043;
     private const double RainbowHueCycleSeconds = 4d;
+    private const float ElementOffset = 1f;
 
     private BitDirection _bitDirection = BitDirection.None;
     private BitSide _bitSide = BitSide.None;
@@ -47,14 +48,14 @@ public unsafe class EX3_Coronation_Game8 : SplatoonScript
     public static Vector3 GetPositionFromBit(BitDirection dir, BitSide side)
         => (dir, side) switch
         {
-            (BitDirection.North, BitSide.Right) => new Vector3(100f, 0f, 80f),
-            (BitDirection.North, BitSide.Left) => new Vector3(120f, 0f, 80f),
-            (BitDirection.East, BitSide.Right) => new Vector3(120f, 0f, 100f),
-            (BitDirection.East, BitSide.Left) => new Vector3(120f, 0f, 120f),
-            (BitDirection.South, BitSide.Right) => new Vector3(100f, 0f, 120f),
-            (BitDirection.South, BitSide.Left) => new Vector3(80f, 0f, 120f),
-            (BitDirection.West, BitSide.Right) => new Vector3(80f, 0f, 100f),
-            (BitDirection.West, BitSide.Left) => new Vector3(80f, 0f, 80f),
+            (BitDirection.North, BitSide.Right) => new Vector3(100f, 0f, 80f + ElementOffset),
+            (BitDirection.North, BitSide.Left) => new Vector3(120f - ElementOffset, 0f, 80f + ElementOffset),
+            (BitDirection.East, BitSide.Right) => new Vector3(120f - ElementOffset, 0f, 100f),
+            (BitDirection.East, BitSide.Left) => new Vector3(120f - ElementOffset, 0f, 120f - ElementOffset),
+            (BitDirection.South, BitSide.Right) => new Vector3(100f, 0f, 120f - ElementOffset),
+            (BitDirection.South, BitSide.Left) => new Vector3(80f + ElementOffset, 0f, 120f - ElementOffset),
+            (BitDirection.West, BitSide.Right) => new Vector3(80f + ElementOffset, 0f, 100f),
+            (BitDirection.West, BitSide.Left) => new Vector3(80f + ElementOffset, 0f, 80f + ElementOffset),
             _ => new Vector3(100f, 0f, 100f),
         };
 
@@ -69,14 +70,9 @@ public unsafe class EX3_Coronation_Game8 : SplatoonScript
     public override void OnSettingsDraw()
     {
         var bitCount = CountVisibleCoronationBits();
-        ImGui.Text("Spread Rule is JP Strategy (game8).");
-
-        if(ImGui.CollapsingHeader("Debug"))
-        {
-            ImGui.Text($"Bit Count: {bitCount} (required: 4)");
-            ImGui.Text($"Bit Direction: {_bitDirection} (required: North, East, South, West)");
-            ImGui.Text($"Bit Side: {_bitSide} (required: Right, Left)");
-        }
+        ImGui.Text($"Bit Count: {bitCount} (required: 4)");
+        ImGui.Text($"Bit Direction: {_bitDirection} (required: North, East, South, West)");
+        ImGui.Text($"Bit Side: {_bitSide} (required: Right, Left)");
     }
 
     public override void OnUpdate()

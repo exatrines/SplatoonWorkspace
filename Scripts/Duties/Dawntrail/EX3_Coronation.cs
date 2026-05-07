@@ -97,7 +97,7 @@ public unsafe class EX3_Coronation : SplatoonScript
     {
         ImGui.Text("Spread Basis");
         ImGui.RadioButton("North (e.g. If North Bit tethered you then spread to N or NE.)", ref C.BasisIsNorth, true);
-        ImGui.RadioButton("NorthEast (e.g. If NorthEast Bit tethered you then spread to NE or N.)", ref C.BasisIsNorth, false);
+        ImGui.RadioButton("NorthWest (e.g. If North Bit tethered you then spread to NW or N.)", ref C.BasisIsNorth, false);
 
         ImGui.Separator();
 

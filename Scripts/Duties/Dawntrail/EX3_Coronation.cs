@@ -17,9 +17,9 @@ using static Splatoon.Splatoon;
 
 namespace SplatoonScriptsOfficial.Duties.Dawntrail;
 
-public unsafe class EX3_Coronation_Game8 : SplatoonScript
+public unsafe class EX3_Coronation : SplatoonScript
 {
-    public override Metadata Metadata { get; } = new(1, "mirage");
+    public override Metadata Metadata { get; } = new(2, "mirage");
     public override HashSet<uint>? ValidTerritories => [1243];
 
     private const uint CoronationBitDataId = 18043;
@@ -28,6 +28,8 @@ public unsafe class EX3_Coronation_Game8 : SplatoonScript
 
     private BitDirection _bitDirection = BitDirection.None;
     private BitSide _bitSide = BitSide.None;
+
+    public Config C => Controller.GetConfig<Config>();
 
     public enum BitDirection
     {
@@ -45,18 +47,42 @@ public unsafe class EX3_Coronation_Game8 : SplatoonScript
         Right,
     }
 
-    public static Vector3 GetPositionFromBit(BitDirection dir, BitSide side)
+    public enum FieldDirection
+    {
+        North,
+        NorthEast,
+        East,
+        SouthEast,
+        South,
+        SouthWest,
+        West,
+        NorthWest,
+    }
+
+    public static Vector3 SpreadPositionFromDirection(FieldDirection dir)
+        => dir switch
+        {
+            FieldDirection.North => new Vector3(100f, 0f, 80f + ElementOffset),
+            FieldDirection.NorthEast => new Vector3(120f - ElementOffset, 0f, 80f + ElementOffset),
+            FieldDirection.East => new Vector3(120f - ElementOffset, 0f, 100f),
+            FieldDirection.SouthEast => new Vector3(120f - ElementOffset, 0f, 120f - ElementOffset),
+            FieldDirection.South => new Vector3(100f, 0f, 120f - ElementOffset),
+            FieldDirection.SouthWest => new Vector3(80f + ElementOffset, 0f, 120f - ElementOffset),
+            FieldDirection.West => new Vector3(80f + ElementOffset, 0f, 100f),
+            FieldDirection.NorthWest => new Vector3(80f + ElementOffset, 0f, 80f + ElementOffset),
+        };
+
+    public Vector3 GetSpreadPositionFromBit(BitDirection dir, BitSide side)
         => (dir, side) switch
         {
-            (BitDirection.North, BitSide.Right) => new Vector3(100f, 0f, 80f + ElementOffset),
-            (BitDirection.North, BitSide.Left) => new Vector3(120f - ElementOffset, 0f, 80f + ElementOffset),
-            (BitDirection.East, BitSide.Right) => new Vector3(120f - ElementOffset, 0f, 100f),
-            (BitDirection.East, BitSide.Left) => new Vector3(120f - ElementOffset, 0f, 120f - ElementOffset),
-            (BitDirection.South, BitSide.Right) => new Vector3(100f, 0f, 120f - ElementOffset),
-            (BitDirection.South, BitSide.Left) => new Vector3(80f + ElementOffset, 0f, 120f - ElementOffset),
-            (BitDirection.West, BitSide.Right) => new Vector3(80f + ElementOffset, 0f, 100f),
-            (BitDirection.West, BitSide.Left) => new Vector3(80f + ElementOffset, 0f, 80f + ElementOffset),
-            _ => new Vector3(100f, 0f, 100f),
+            (BitDirection.North, BitSide.Right) => SpreadPositionFromDirection(C.BasisIsNorth ? FieldDirection.North : FieldDirection.NorthWest),
+            (BitDirection.North, BitSide.Left) => SpreadPositionFromDirection(C.BasisIsNorth ? FieldDirection.NorthEast : FieldDirection.North),
+            (BitDirection.East, BitSide.Right) => SpreadPositionFromDirection(C.BasisIsNorth ? FieldDirection.East : FieldDirection.NorthEast),
+            (BitDirection.East, BitSide.Left) => SpreadPositionFromDirection(C.BasisIsNorth ? FieldDirection.SouthEast : FieldDirection.East),
+            (BitDirection.South, BitSide.Right) => SpreadPositionFromDirection(C.BasisIsNorth ? FieldDirection.South : FieldDirection.SouthEast),
+            (BitDirection.South, BitSide.Left) => SpreadPositionFromDirection(C.BasisIsNorth ? FieldDirection.SouthWest : FieldDirection.South),
+            (BitDirection.West, BitSide.Right) => SpreadPositionFromDirection(C.BasisIsNorth ? FieldDirection.West : FieldDirection.SouthWest),
+            (BitDirection.West, BitSide.Left) => SpreadPositionFromDirection(C.BasisIsNorth ? FieldDirection.NorthWest : FieldDirection.West),
         };
 
 
@@ -69,6 +95,12 @@ public unsafe class EX3_Coronation_Game8 : SplatoonScript
 
     public override void OnSettingsDraw()
     {
+        ImGui.Text("Spread Basis");
+        ImGui.RadioButton("North (e.g. If North Bit tethered you then spread to N or NE.)", ref C.BasisIsNorth, true);
+        ImGui.RadioButton("NorthEast (e.g. If NorthEast Bit tethered you then spread to NE or N.)", ref C.BasisIsNorth, false);
+
+        ImGui.Separator();
+
         var bitCount = CountVisibleCoronationBits();
         ImGui.Text($"Bit Count: {bitCount} (required: 4)");
         ImGui.Text($"Bit Direction: {_bitDirection} (required: North, East, South, West)");
@@ -96,7 +128,7 @@ public unsafe class EX3_Coronation_Game8 : SplatoonScript
 
         nav.Enabled = true;
         nav.color = GetRainbowColor(RainbowHueCycleSeconds).ToUint();
-        nav.SetRefPosition(GetPositionFromBit(_bitDirection, _bitSide));
+        nav.SetRefPosition(GetSpreadPositionFromBit(_bitDirection, _bitSide));
     }
 
     public override void OnReset()
@@ -185,5 +217,7 @@ public unsafe class EX3_Coronation_Game8 : SplatoonScript
         return new Vector4((float)r, (float)g, (float)b, 1f);
     }
 
-    public sealed class Config : IEzConfig { }
+    public sealed class Config : IEzConfig {
+        public bool BasisIsNorth = true;
+    }
 }

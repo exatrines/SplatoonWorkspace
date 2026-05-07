@@ -19,7 +19,7 @@ namespace SplatoonScriptsOfficial.Duties.Dawntrail;
 
 public unsafe class EX3_Coronation : SplatoonScript
 {
-    public override Metadata Metadata { get; } = new(2, "mirage");
+    public override Metadata Metadata { get; } = new(1, "mirage");
     public override HashSet<uint>? ValidTerritories => [1243];
 
     private const uint CoronationBitDataId = 18043;

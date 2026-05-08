@@ -35,3 +35,19 @@ for JP
 
 ### Configration
 設定不要
+
+## P5 Dynamis Omega Safe Guide
+```
+https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Omega_Safe_Guide.cs
+```
+
+P5のコードデュナミス・オメガの激狭安置にナビします。
+
+視認性を上げるために公式レイアウトの以下レイアウトを非表示、もしくは透明度を下げることを推奨します。
+
+- 「P5 D3 - M/F 1st clones attacks」
+- 「P5 D3 - M/F 2nd clones attacks」
+- 「P5 D3 - Diffuse WaveCannon」
+
+### Configration
+設定不要

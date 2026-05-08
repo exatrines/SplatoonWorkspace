@@ -16,6 +16,27 @@ Priority設定が必要です。
 りりどマクロの場合は以下のような設定となります。
 - Group direction settings: 上から NorthWest, NorthEast, West, SouthWest, SouthEast, East
 
+## P5 Dynamis Sigma Relative Tower Finder
+```
+https://raw.githubusercontent.com/exatrines/Splatoon/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Sigma_Relative_Tower_Finder.cs
+```
+
+P5のコードデュナミス・シグマの「マクロ押さない式」のスクリプトです。波動砲の散開位置を基準にどの塔に入るべきかナビゲーションされます。
+
+注意：このスクリプトではプレステ整列および波動砲散開はナビゲーションされません。公式スクリプトの[「P5 Dynamis Sigma」](https://github.com/PunishXIV/Splatoon/blob/main/Presets/Endwalker/Duties/Ultimate%20-%20The%20Omega%20Protocol/Phase%205%20-%20Dynamis%20Omega%20-%202.%20Sigma.md)を導入し、適切な設定をしてください。
+
+### Strategy 
+for EN
+- [Raidplan](https://raidplan.io/plan/cdq6r6x2sffs53kf)
+
+for JP
+- [Zattou Inugami 日記「絶オメガP5シグマ塔踏みのコツ：マクロは押さない式が簡単！」 | FINAL FANTASY XIV, The Lodestone ](https://jp.finalfantasyxiv.com/lodestone/character/36478083/blog/5319315/)
+- [【FF14】絶オメガ検証戦　コード：＊＊＊ミ＊【シグマ】　塔踏みでマクロを使わない方法 | YouTube ](https://www.youtube.com/watch?v=F9xi4EyUrbA)
+
+### Configration
+設定不要
+
+
 ## P5 Marking Helper
 ```
 https://raw.githubusercontent.com/exatrines/Splatoon/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5%20Marking%20Helper.cs
@@ -54,32 +75,3 @@ P5の「コードデュナミス・シグマ」と「コードデュナミス・
 Priority設定が必要です。
 #### Show Sigma Helper（LDPU）
 シグマのマーカー表示が必要な場合はチェックを付けてください。
-
-## P5 Dynamis Sigma JP No Macro Strat
-```
-https://raw.githubusercontent.com/exatrines/Splatoon/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5%20Dynamis%20Sigma%20JP%20No%20macro%20Strat.cs
-```
-
-P5のコードデュナミス・シグマの「マクロ押さない式」のスクリプトです。波動砲およびアーム誘導の散開位置と、処理後にどの塔に行くべきかをガイドします。ハロワ処理はガイドされないので注意が必要です。
-
-注意：このスクリプトを導入する場合、公式スクリプトの[「P5 Dynamis Sigma」](https://github.com/PunishXIV/Splatoon/blob/main/Presets/Endwalker/Duties/Ultimate%20-%20The%20Omega%20Protocol/Phase%205%20-%20Dynamis%20Omega%20-%202.%20Sigma.md)は無効化してください。
-
-### Configration
-#### Marker Alignment
-マーカーの整列の基準を設定します。マーカーの整列方法は以下の3種類があります。
-- NorthToSouth: フィールド外周にいるオメガMの正面に縦に整列します。
-- WestToEast: フィールド外周にいるオメガMの正面に横に整列します。
-- WestToEast & Both Omega Arms: フィールドに出現している2つのオメガアームの間に整列します。
-#### Marker Sort
-マーカーの整列順を選択します。Marker Alignmentで選択した整列方法において、上または左を先頭として、どのマーカーがどの位置に来るかを選択します。
-#### Wave Cannon Spread Configuration
-整列の先頭から順に、それぞれの対象者がどこに散開するべきかを指定します。
-#### Other Configurations
-- Show Omega-M Tether: ギミック開始時にオメガMに対してテザーを表示します。
-- Display tower type: 波動砲の対象となる塔の種類を表示するか。1人塔は「1」、2人塔は「2」と表示されます。
-
-### Configration Sample
-りりどマクロの散会かつ、塔は押さない式の場合は以下のような設定となります。
-- Marker Alignment: NorthToSouth
-- Marker Sort: 上から RedCircle, BlueCross, GreenTriangle, PurpleSquare
-- Wave Cannon Spread Configuration: 上から Front, Bottom, Left, Right, BottomLeft, FrontRight, BottomRight, FrontLeft

@@ -11,7 +11,7 @@ https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scri
 #### Spread Basis
 レイドプランを確認してください。
 
-- [RaidPlan North](https://raidplan.io/plan/pdekw9pr5hqdpbpg#1)
-- [RaidPlan NorthWest](https://raidplan.io/plan/pdekw9pr5hqdpbpg#2)
+- [RaidPlan#1 North](https://raidplan.io/plan/pdekw9pr5hqdpbpg#1)
+- [RaidPlan#2 NorthWest](https://raidplan.io/plan/pdekw9pr5hqdpbpg#2)
 
 日本で主流の「Game8」マクロでは `North` を選択してください。

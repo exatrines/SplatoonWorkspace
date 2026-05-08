@@ -1,6 +1,5 @@
-# 極エターナルクイーン討滅戦
-## 端末射出
-
+# EX3 Sphene's Burden
+## Coronation
 ```
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Dawntrail/EX3_Coronation.cs
 ```

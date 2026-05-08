@@ -4,7 +4,7 @@
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P3%20Transition.cs
 ```
 
-P3の「コロッサスブロー」をフルガイドするスクリプトです。パルス（ドーナツ範囲）のAOEは表示されないので、任意のレイアウトを導入してください。
+P3のコロッサスブローをフルガイドするスクリプトです。パルス（ドーナツ範囲）のAOEは表示されないので、任意のレイアウトを導入してください。
 
 ### Configration
 Priority設定が必要です。
@@ -23,7 +23,7 @@ https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scri
 
 P5のコードデュナミス・シグマの「マクロ押さない式」のスクリプトです。波動砲の散開位置を基準にどの塔に入るべきかナビゲーションされます。
 
-注意：このスクリプトではプレステ整列および波動砲散開はナビゲーションされません。公式スクリプトの[「P5 Dynamis Sigma」](https://github.com/PunishXIV/Splatoon/blob/main/Presets/Endwalker/Duties/Ultimate%20-%20The%20Omega%20Protocol/Phase%205%20-%20Dynamis%20Omega%20-%202.%20Sigma.md)を導入し、適切な設定をしてください。
+注意：このスクリプトではプレステ整列および波動砲散開はナビゲーションされません。公式スクリプトの[「Dynamis Sigma」](https://github.com/PunishXIV/Splatoon/blob/main/Presets/Endwalker/Duties/Ultimate%20-%20The%20Omega%20Protocol/Phase%205%20-%20Dynamis%20Omega%20-%202.%20Sigma.md)と組み合わせて使用することを推奨します。
 
 ### Strategy 
 for EN

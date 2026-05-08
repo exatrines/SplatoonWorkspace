@@ -1,4 +1,4 @@
-# EX3 Sphene's Burden
+# Sphene's Burden
 ## Coronation
 ```
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Dawntrail/EX3_Coronation.cs

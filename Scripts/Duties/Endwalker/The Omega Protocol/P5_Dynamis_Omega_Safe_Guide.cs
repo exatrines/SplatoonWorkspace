@@ -307,7 +307,11 @@ public class P5_Dynamis_Omega_Safe_Guide : SplatoonScript
         var isNeSw = angle == 45f || angle == 225f;
         var horizontalSign = isNeSw ? 1f : -1f;
         if(invertHorizontal) horizontalSign *= -1f;
-        var sign = omegaCastId == CastWaveFirstHorizontal ? horizontalSign : -horizontalSign;
+        var sign = 0f;
+        if (omegaCastId == CastWaveFirstHorizontal || omegaCastId == CastWaveFirstVertical)
+            sign = omegaCastId == CastWaveFirstHorizontal ? horizontalSign : -horizontalSign;
+        if (omegaCastId == CastWaveSecondHorizontal || omegaCastId == CastWaveSecondVertical)
+            sign = omegaCastId == CastWaveSecondHorizontal ? horizontalSign : -horizontalSign;
         return amount * sign;
     }
     #endregion

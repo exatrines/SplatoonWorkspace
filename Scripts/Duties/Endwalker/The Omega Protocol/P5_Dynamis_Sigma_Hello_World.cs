@@ -315,8 +315,8 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         ImGui.TextWrapped("Step1: Spread Group. Step2: Avoid Razor. Step3: Avoid Omega-F actions (Foot or Staff). Step4: Spread Hello World.");
         ImGui.NewLine();
 
-        ImGui.TextWrapped("Presets: Hamukatu and Sausage. If other configurations are needed, please adjust the settings manually.");
         DrawImportButtons();
+        ImGui.TextWrapped("If other configurations are needed, please adjust the settings manually.");
         ImGui.NewLine();
 
         if(ImGuiEx.BeginDefaultTable("P5SigmaHelloWorldSettings", ["Role", "Marker", "Spread Group", "Angle from Omega-F (Cw)", "Angle from Omega-F (Ccw)", "Range from Center"]))
@@ -340,11 +340,8 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
     private void DrawImportButtons()
     {
-        if(ImGui.Button("Import Hamukatu Strat"))
-            ApplyHamukatuStrat(C);
-        ImGui.SameLine();
-        if(ImGui.Button("Import Sausage Strat"))
-            ApplySausageStrat(C);
+        if(ImGui.Button("Import Japanese Strat"))
+            ApplyJapaneseStrat(C);
     }
 
     private void DrawDebugSection()
@@ -445,7 +442,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
     private static float ClampSpreadRadius(float radius)
         => Math.Max(SpreadRadiusMin, radius);
 
-    private static void ApplyHamukatuStrat(Config c)
+    private static void ApplyJapaneseStrat(Config c)
     {
         SetMarkers(c, MarkerType.Attack1, MarkerType.Attack2, MarkerType.Attack3, MarkerType.Attack4, MarkerType.None, MarkerType.None);
         SetSpread(ref c.DegSpreadHelloNear, ref c.DegSpreadHelloNearCcw, 180f, 180f);
@@ -456,20 +453,6 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         SetSpread(ref c.DegSpreadBaitFar2, ref c.DegSpreadBaitFar2Ccw, 270f, 90f);
         SetSpread(ref c.DegSpreadBaitNear1, ref c.DegSpreadBaitNear1Ccw, 192.5f, 192.5f);
         SetSpread(ref c.DegSpreadBaitNear2, ref c.DegSpreadBaitNear2Ccw, 167.5f, 167.5f);
-        ApplySharedSpreadGroups(c);
-    }
-
-    private static void ApplySausageStrat(Config c)
-    {
-        SetMarkers(c, MarkerType.Bind1, MarkerType.Bind2, MarkerType.Attack1, MarkerType.Attack4, MarkerType.Attack2, MarkerType.Attack3);
-        SetSpread(ref c.DegSpreadHelloNear, ref c.DegSpreadHelloNearCcw, 270f, 90f);
-        SetSpread(ref c.DegSpreadHelloFar, ref c.DegSpreadHelloFarCcw, 180f, 180f);
-        SetSpread(ref c.DegSpreadBaitArm1, ref c.DegSpreadBaitArm1Ccw, 317.5f, 317.5f);
-        SetSpread(ref c.DegSpreadBaitArm2, ref c.DegSpreadBaitArm2Ccw, 17.5f, 17.5f);
-        SetSpread(ref c.DegSpreadBaitFar1, ref c.DegSpreadBaitFar1Ccw, 0f, 0f);
-        SetSpread(ref c.DegSpreadBaitFar2, ref c.DegSpreadBaitFar2Ccw, 180f, 180f);
-        SetSpread(ref c.DegSpreadBaitNear1, ref c.DegSpreadBaitNear1Ccw, 270f, 90f);
-        SetSpread(ref c.DegSpreadBaitNear2, ref c.DegSpreadBaitNear2Ccw, 247.5f, 112.5f);
         ApplySharedSpreadGroups(c);
     }
 

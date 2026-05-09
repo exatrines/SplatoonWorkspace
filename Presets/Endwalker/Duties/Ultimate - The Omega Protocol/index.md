@@ -41,10 +41,10 @@ for JP
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Sigma_Hello_World.cs
 ```
 
-P5のコードデュナミス・シグマのハロワ処理のスクリプトです。マーカーとデバフをもとに散開先を確定します。また、回転ビームとオメガFのブレードアクションも回避するようガイドされます。
+P5のコードデュナミス・シグマのハロワ処理のスクリプトです。マーカーとデバフをもとに散開先にガイドします。また、回転ビームとオメガFのブレードアクションも回避するようガイドされるので、関連するレイアウトは無効化して問題ありません。
 
 ### Configration
-ハムカツとSausageのプリセットを用意しています。これらの処理方以外の設定が必要な場合は手動で設定してください。
+[ハムカツ](https://github.com/PunishXIV/Splatoon/blob/main/Presets/Endwalker/Duties/Ultimate%20-%20The%20Omega%20Protocol/Phase%205%20-%20Dynamis%20Omega%20-%202.%20Sigma.md#international-untested-japanese-strat)と[Sausage](https://github.com/PunishXIV/Splatoon/blob/main/Presets/Endwalker/Duties/Ultimate%20-%20The%20Omega%20Protocol/Phase%205%20-%20Dynamis%20Omega%20-%202.%20Sigma.md#international-untested-sausage-strat)のプリセットを用意しています。これらの処理法以外の設定が必要な場合は手動で設定してください。
 
 ### Configration Sample
 りりどマクロの場合は「Import Hamukatu Strat」で問題ありません。

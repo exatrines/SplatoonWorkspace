@@ -274,8 +274,8 @@ public class P5_Dynamis_Omega_Safe_Guide : SplatoonScript
 
         if(maleTransform == TransformSword && femaleTransform == TransformStaff)
         {
-            var offset = GetQuadrantOffset(maleAngle, omegaCastId, 22.5f);
-            angle = maleAngle + 90f + offset;
+            var offset = GetQuadrantOffset(maleAngle, omegaCastId, 67.5f, invertHorizontal: true);
+            angle = femaleAngle + offset;
         }
         else if(maleTransform == TransformSword && femaleTransform == TransformFoot)
         {

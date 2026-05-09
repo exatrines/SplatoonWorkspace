@@ -1,0 +1,807 @@
+using Dalamud.Bindings.ImGui;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.Configuration;
+using ECommons.DalamudServices;
+using ECommons.GameFunctions;
+using ECommons.GameHelpers;
+using ECommons.ImGuiMethods;
+using ECommons.MathHelpers;
+using ECommons.Hooks.ActionEffectTypes;
+using Splatoon.SplatoonScripting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using static Splatoon.Splatoon;
+
+namespace SplatoonScriptsOfficial.Duties.Endwalker.The_Omega_Protocol;
+
+public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
+{
+    public override Metadata Metadata { get; } = new(1, "mirage");
+    public override HashSet<uint>? ValidTerritories => [1122];
+
+    private const uint SceneId = 6;
+    private const uint DataIdOmegaFemale = 0x3D68;
+    private const uint ActionCodeDynamisSigma = 32788;
+    private const uint ActionLearRazor = 31631;
+    private const uint ActionOmegaFemaleFoot = 31530;
+    private const uint ActionOmegaFemaleStaff = 31533;
+    private const uint ActionHelloWorldNearThird = 31626;
+    private const uint StatusHelloNear = 3442;
+    private const uint StatusHelloFar = 3443;
+    private const string VfxClockwise = "vfx/lockon/eff/m0515_turning_right01c.avfx";
+    private const string VfxCounterClockwise = "vfx/lockon/eff/m0515_turning_left01c.avfx";
+    private const ushort TransformOmegaFemaleFoot = 4;
+    private const ushort TransformOmegaFemaleStaff = 11;
+    private static readonly Vector3 ArenaCenter = new(100f, 0f, 100f);
+    private const float SpreadConfigDegreesMin = 0f;
+    private const float SpreadConfigDegreesMax = 355.9f;
+    private const float SpreadRadiusMin = 0f;
+    private const float SettingsCellWidth = 150f;
+    private const string NaviElement = "navi";
+    private const string NaviSubElement = "navi_sub";
+    private const float DefaultHelloSpreadRadius = 9.75f;
+    private const float DefaultOtherSpreadRadius = 19f;
+
+    private enum State
+    {
+        Wait,
+        AvoidRazor,
+        AvoidOmegaFAction,
+        SpreadHelloWorld
+    }
+
+    private enum Role
+    {
+        None,
+        BaitArm1,
+        BaitArm2,
+        BaitFar1,
+        BaitFar2,
+        BaitNear1,
+        BaitNear2,
+        BaitNear,
+        HelloNear,
+        HelloFar
+    }
+
+    public enum Group
+    {
+        North,
+        South
+    }
+
+    public enum MarkerType : uint
+    {
+        None = 999,
+        Attack1 = 0,
+        Attack2 = 1,
+        Attack3 = 2,
+        Attack4 = 3,
+        Attack5 = 4,
+        Attack6 = 5,
+        Attack7 = 6,
+        Attack8 = 7,
+        Bind1 = 8,
+        Bind2 = 9,
+        Bind3 = 10,
+        Ignore1 = 11,
+        Ignore2 = 12
+    }
+
+    private sealed class PlayerData
+    {
+        public ulong ObjectId;
+        public string Name = string.Empty;
+        public uint MarkerP1 = MarkerP1Unset;
+        public Role Role = Role.None;
+    }
+
+    private const uint MarkerP1Unset = uint.MaxValue;
+
+    public sealed class Config : IEzConfig
+    {
+        public MarkerType BaitArm1Marker = MarkerType.Bind1;
+        public MarkerType BaitArm2Marker = MarkerType.Bind2;
+        public MarkerType BaitFar1Marker = MarkerType.Attack1;
+        public MarkerType BaitFar2Marker = MarkerType.Attack2;
+        public MarkerType BaitNear1Marker = MarkerType.Attack3;
+        public MarkerType BaitNear2Marker = MarkerType.Attack4;
+
+        public float DegSpreadHelloNear = 180f;
+        public float DegSpreadHelloNearCcw = 180f;
+        public float DegSpreadHelloFar = 270f;
+        public float DegSpreadHelloFarCcw = 90f;
+        public float RadiusHelloNear = DefaultHelloSpreadRadius;
+        public float RadiusHelloFar = DefaultHelloSpreadRadius;
+
+        public Group SpreadGroupHelloNear = Group.South;
+        public Group SpreadGroupHelloFar = Group.South;
+        public Group SpreadGroupBaitArm1 = Group.North;
+        public Group SpreadGroupBaitArm2 = Group.North;
+        public Group SpreadGroupBaitFar1 = Group.North;
+        public Group SpreadGroupBaitFar2 = Group.South;
+        public Group SpreadGroupBaitNear1 = Group.South;
+        public Group SpreadGroupBaitNear2 = Group.South;
+        public Group SpreadGroupBaitNearDual = Group.South;
+
+        public float DegSpreadBaitArm1 = 317.5f;
+        public float DegSpreadBaitArm1Ccw = 317.5f;
+        public float DegSpreadBaitArm2 = 42.5f;
+        public float DegSpreadBaitArm2Ccw = 42.5f;
+        public float RadiusBaitArm1 = DefaultOtherSpreadRadius;
+        public float RadiusBaitArm2 = DefaultOtherSpreadRadius;
+        public float DegSpreadBaitFar1 = 90f;
+        public float DegSpreadBaitFar1Ccw = 270f;
+        public float DegSpreadBaitFar2 = 270f;
+        public float DegSpreadBaitFar2Ccw = 90f;
+        public float RadiusBaitFar1 = DefaultOtherSpreadRadius;
+        public float RadiusBaitFar2 = DefaultOtherSpreadRadius;
+
+        public float DegSpreadBaitNear1 = 192.5f;
+        public float DegSpreadBaitNear1Ccw = 192.5f;
+        public float DegSpreadBaitNear2 = 167.5f;
+        public float DegSpreadBaitNear2Ccw = 167.5f;
+        public float RadiusBaitNear1 = DefaultOtherSpreadRadius;
+        public float RadiusBaitNear2 = DefaultOtherSpreadRadius;
+        public float RadiusBaitNearDual = DefaultOtherSpreadRadius;
+    }
+
+    private Config C => Controller.GetConfig<Config>();
+    private readonly Dictionary<ulong, PlayerData> _players = [];
+    private State _state = State.Wait;
+    private bool _isClockwise;
+    private float _initAngle;
+
+    public override void OnSetup()
+    {
+        Controller.RegisterElementFromCode(NaviElement, """{"Name":"navi","refX":100.0,"refY":100.0,"radius":0.5,"fillIntensity":0.5,"thicc":5.0,"tether":true}""", overwrite: true);
+        Controller.RegisterElementFromCode(NaviSubElement, """{"Name":"navi_sub","refX":100.0,"refY":100.0,"radius":0.5,"fillIntensity":0.5,"thicc":5.0,"tether":true}""", overwrite: true);
+    }
+
+    public override void OnReset()
+    {
+        _players.Clear();
+        _state = State.Wait;
+        _isClockwise = false;
+        _initAngle = 0f;
+        DisableNavigationElements();
+    }
+
+    public override void OnUpdate()
+    {
+        if(IsPhaseFive() && _players.Count < 7)
+            BuildPartySnapshot();
+
+        if(!IsPhaseFive() || BasePlayer == null || _players.Count != 8)
+        {
+            DisableNavigationElements();
+            return;
+        }
+
+        if(!_players.TryGetValue(BasePlayer.GameObjectId, out var me))
+        {
+            DisableNavigationElements();
+            return;
+        }
+
+        if(_state == State.Wait)
+        {
+            DisableNavigationElements();
+            return;
+        }
+
+        if(_state == State.AvoidRazor)
+        {
+            var pos = GetRazorSafePosition(me.Role);
+            UpdateNavigation(NaviElement, pos, true);
+            DisableElement(NaviSubElement);
+            return;
+        }
+
+        if(_state == State.AvoidOmegaFAction)
+        {
+            var omegaFemale = FindNpcByDataId(DataIdOmegaFemale);
+            if(omegaFemale == null)
+            {
+                DisableNavigationElements();
+                return;
+            }
+
+            var transformId = omegaFemale.GetTransformationID();
+            if(transformId == TransformOmegaFemaleStaff)
+            {
+                var pos = GetRazorSafePosition(me.Role);
+                UpdateNavigation(NaviElement, pos, true);
+                DisableElement(NaviSubElement);
+            }
+            else if(transformId == TransformOmegaFemaleFoot)
+            {
+                var pos = CalculatePointFromCenterByDegree(ArenaCenter, DefaultOtherSpreadRadius, GetGroup(me.Role) == Group.North ? _initAngle : _initAngle + 180f);
+                UpdateNavigation(NaviElement, pos, true);
+                DisableElement(NaviSubElement);
+            }
+            else
+            {
+                DisableNavigationElements();
+            }
+            return;
+        }
+
+        if(_state == State.SpreadHelloWorld)
+            UpdateSpreadNavigation(me.Role);
+    }
+
+    public override void OnActionEffectEvent(ActionEffectSet set)
+    {
+        if(!IsPhaseFive() || set.Action == null) return;
+        var actionId = set.Action.Value.RowId;
+
+        if(actionId == ActionCodeDynamisSigma)
+        {
+            _state = State.Wait;
+            return;
+        }
+
+        if(_state == State.AvoidRazor && actionId == ActionLearRazor)
+        {
+            _state = State.AvoidOmegaFAction;
+            return;
+        }
+
+        if(_state == State.AvoidOmegaFAction && (actionId == ActionOmegaFemaleFoot || actionId == ActionOmegaFemaleStaff))
+        {
+            _state = State.SpreadHelloWorld;
+            return;
+        }
+
+        if(_state == State.SpreadHelloWorld && actionId == ActionHelloWorldNearThird)
+        {
+            OnReset();
+        }
+    }
+
+    public override void OnVFXSpawn(uint target, string vfxPath)
+    {
+        if(!IsPhaseFive() || _state != State.Wait || _players.Count != 8) return;
+        if(!vfxPath.Equals(VfxClockwise, StringComparison.OrdinalIgnoreCase)
+           && !vfxPath.Equals(VfxCounterClockwise, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        _isClockwise = vfxPath.Equals(VfxClockwise, StringComparison.OrdinalIgnoreCase);
+
+        var omegaFemale = FindNpcByDataId(DataIdOmegaFemale);
+        if(omegaFemale != null)
+            _initAngle = NormalizeDegrees(GetRelativeAngleFromArenaCenter(omegaFemale.Position));
+
+        RecomputeDerivedRoles();
+
+        _state = State.AvoidRazor;
+    }
+
+    public override void OnActorControl(uint sourceId, uint command, uint p1, uint p2, uint p3, uint p4, uint p5, uint p6, uint p7, uint p8, ulong targetId, byte replaying)
+    {
+        if(!IsPhaseFive()) return;
+        if(command != 502) return;
+
+        _ = sourceId;
+
+        ulong markedGoId = 0;
+        PlayerData? data = null;
+        if(targetId != 0 && _players.TryGetValue(targetId, out var byTarget))
+        {
+            markedGoId = targetId;
+            data = byTarget;
+        }
+        else if(p2 != 0 && _players.TryGetValue(p2, out var byP2))
+        {
+            markedGoId = p2;
+            data = byP2;
+        }
+
+        if(data == null)
+            return;
+
+        data.MarkerP1 = p1;
+        if(data.Name.Length == 0)
+            data.Name = Svc.Objects.FirstOrDefault(x => x.GameObjectId == markedGoId)?.Name.ToString() ?? string.Empty;
+    }
+
+    public override void OnSettingsDraw()
+    {
+        ImGui.TextWrapped("This Script guides next 4 steps:");
+        ImGui.TextWrapped("Step1: Spread Group. Step2: Avoid Razor. Step3: Avoid Omega-F actions (Foot or Staff). Step4: Spread Hello World.");
+        ImGui.NewLine();
+
+        ImGui.TextWrapped("Presets: Hamukatu and Sausage. If other configurations are needed, please adjust the settings manually.");
+        DrawImportButtons();
+        ImGui.NewLine();
+
+        if(ImGuiEx.BeginDefaultTable("P5SigmaHelloWorldSettings", ["Role", "Marker", "Spread Group", "Angle from Omega-F (Cw)", "Angle from Omega-F (Ccw)", "Range from Center"]))
+        {
+            DrawRoleSettingsRowHelloDual("HelloNear", ref C.SpreadGroupHelloNear, ref C.DegSpreadHelloNear, ref C.DegSpreadHelloNearCcw, ref C.RadiusHelloNear);
+            DrawRoleSettingsRowHelloDual("HelloFar", ref C.SpreadGroupHelloFar, ref C.DegSpreadHelloFar, ref C.DegSpreadHelloFarCcw, ref C.RadiusHelloFar);
+            DrawRoleSettingsRowMarkerSpreadDual("#baitArm1", ref C.BaitArm1Marker, ref C.SpreadGroupBaitArm1, ref C.DegSpreadBaitArm1, ref C.DegSpreadBaitArm1Ccw, ref C.RadiusBaitArm1);
+            DrawRoleSettingsRowMarkerSpreadDual("#baitArm2", ref C.BaitArm2Marker, ref C.SpreadGroupBaitArm2, ref C.DegSpreadBaitArm2, ref C.DegSpreadBaitArm2Ccw, ref C.RadiusBaitArm2);
+            DrawRoleSettingsRowMarkerSpreadDual("#baitFar1", ref C.BaitFar1Marker, ref C.SpreadGroupBaitFar1, ref C.DegSpreadBaitFar1, ref C.DegSpreadBaitFar1Ccw, ref C.RadiusBaitFar1);
+            DrawRoleSettingsRowMarkerSpreadDual("#baitFar2", ref C.BaitFar2Marker, ref C.SpreadGroupBaitFar2, ref C.DegSpreadBaitFar2, ref C.DegSpreadBaitFar2Ccw, ref C.RadiusBaitFar2);
+            DrawRoleSettingsRowMarkerSpreadDual("#baitNear1", ref C.BaitNear1Marker, ref C.SpreadGroupBaitNear1, ref C.DegSpreadBaitNear1, ref C.DegSpreadBaitNear1Ccw, ref C.RadiusBaitNear1);
+            DrawRoleSettingsRowMarkerSpreadDual("#baitNear2", ref C.BaitNear2Marker, ref C.SpreadGroupBaitNear2, ref C.DegSpreadBaitNear2, ref C.DegSpreadBaitNear2Ccw, ref C.RadiusBaitNear2);
+            ImGui.EndTable();
+        }
+        ImGui.TextDisabled("Cw: Clockwise, Ccw: Counter-Clockwise.");
+
+        ImGui.NewLine();
+        if(ImGui.CollapsingHeader("Debug"))
+            DrawDebugSection();
+    }
+
+    private void DrawImportButtons()
+    {
+        if(ImGui.Button("Import Hamukatu Strat"))
+            ApplyHamukatuStrat(C);
+        ImGui.SameLine();
+        if(ImGui.Button("Import Sausage Strat"))
+            ApplySausageStrat(C);
+    }
+
+    private void DrawDebugSection()
+    {
+        ImGui.Text($"State: {_state}");
+        ImGui.Text($"IsClockwise: {_isClockwise}");
+        ImGui.Text($"InitAngle (ΩF, north=0°): {_initAngle:0.00}");
+        if(!ImGuiEx.BeginDefaultTable("P5SigmaHelloWorldRoles", ["Name", "GameObjectId", "Marker (debug)", "Role"]))
+            return;
+
+        foreach(var player in _players.Values.OrderBy(x => x.Name).ThenBy(x => x.ObjectId))
+        {
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            ImGui.Text(player.Name);
+            ImGui.TableNextColumn();
+            ImGui.Text($"0x{player.ObjectId:X8}");
+            ImGui.TableNextColumn();
+            DrawDebugMarkerCombo(player);
+            ImGui.TableNextColumn();
+            ImGui.Text(player.Role.ToString());
+        }
+
+        ImGui.EndTable();
+    }
+
+    private static void DrawRoleSettingsRowHelloDual(string roleLabel, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
+    {
+        ImGui.TableNextRow();
+        ImGui.TableNextColumn();
+        ImGui.Text(roleLabel);
+        ImGui.TableNextColumn();
+        ImGui.TextDisabled("(debuff)");
+        DrawSpreadCells(roleLabel, ref spreadGroup, ref spreadCwDeg, ref spreadCcwDeg, ref radius);
+    }
+
+    private static void DrawRoleSettingsRowMarkerSpreadDual(string roleLabel, ref MarkerType marker, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
+    {
+        ImGui.TableNextRow();
+        ImGui.TableNextColumn();
+        ImGui.Text(roleLabel);
+        ImGui.TableNextColumn();
+        DrawMarkerCell(roleLabel + "_mk", ref marker);
+        DrawSpreadCells(roleLabel, ref spreadGroup, ref spreadCwDeg, ref spreadCcwDeg, ref radius);
+    }
+
+    private static void DrawMarkerCell(string id, ref MarkerType marker)
+    {
+        ImGui.PushID(id);
+        ImGui.SetNextItemWidth(SettingsCellWidth);
+        ImGuiEx.EnumCombo("##marker", ref marker);
+        ImGui.PopID();
+    }
+
+    private static void DrawSpreadCells(string idPrefix, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
+    {
+        ImGui.TableNextColumn();
+        ImGui.PushID(idPrefix + "_grp");
+        ImGui.SetNextItemWidth(SettingsCellWidth);
+        ImGuiEx.EnumCombo("##group", ref spreadGroup);
+        ImGui.PopID();
+
+        ImGui.TableNextColumn();
+        ImGui.PushID(idPrefix + "_cw");
+        DrawSpreadConfigDegreesInput(ref spreadCwDeg);
+        ImGui.PopID();
+
+        ImGui.TableNextColumn();
+        ImGui.PushID(idPrefix + "_ccw");
+        DrawSpreadConfigDegreesInput(ref spreadCcwDeg);
+        ImGui.PopID();
+
+        ImGui.TableNextColumn();
+        ImGui.PushID(idPrefix + "_radius");
+        DrawSpreadRadiusInput(ref radius);
+        ImGui.PopID();
+    }
+
+    private static void DrawSpreadConfigDegreesInput(ref float degrees)
+    {
+        degrees = ClampSpreadConfigDegrees(degrees);
+        ImGui.SetNextItemWidth(SettingsCellWidth);
+        ImGui.InputFloat("##spread", ref degrees, 1f, 5f, "%.2f°");
+        degrees = ClampSpreadConfigDegrees(degrees);
+    }
+
+    private static float ClampSpreadConfigDegrees(float degrees)
+        => Math.Clamp(degrees, SpreadConfigDegreesMin, SpreadConfigDegreesMax);
+
+    private static void DrawSpreadRadiusInput(ref float radius)
+    {
+        radius = ClampSpreadRadius(radius);
+        ImGui.SetNextItemWidth(SettingsCellWidth);
+        ImGui.InputFloat("##radius", ref radius, 0.1f, 1f, "%.2f");
+        radius = ClampSpreadRadius(radius);
+    }
+
+    private static float ClampSpreadRadius(float radius)
+        => Math.Max(SpreadRadiusMin, radius);
+
+    private static void ApplyHamukatuStrat(Config c)
+    {
+        SetMarkers(c, MarkerType.Attack1, MarkerType.Attack2, MarkerType.Attack3, MarkerType.Attack4, MarkerType.None, MarkerType.None);
+        SetSpread(ref c.DegSpreadHelloNear, ref c.DegSpreadHelloNearCcw, 180f, 180f);
+        SetSpread(ref c.DegSpreadHelloFar, ref c.DegSpreadHelloFarCcw, 270f, 90f);
+        SetSpread(ref c.DegSpreadBaitArm1, ref c.DegSpreadBaitArm1Ccw, 317.5f, 317.5f);
+        SetSpread(ref c.DegSpreadBaitArm2, ref c.DegSpreadBaitArm2Ccw, 42.5f, 42.5f);
+        SetSpread(ref c.DegSpreadBaitFar1, ref c.DegSpreadBaitFar1Ccw, 90f, 270f);
+        SetSpread(ref c.DegSpreadBaitFar2, ref c.DegSpreadBaitFar2Ccw, 270f, 90f);
+        SetSpread(ref c.DegSpreadBaitNear1, ref c.DegSpreadBaitNear1Ccw, 192.5f, 192.5f);
+        SetSpread(ref c.DegSpreadBaitNear2, ref c.DegSpreadBaitNear2Ccw, 167.5f, 167.5f);
+        ApplySharedSpreadGroups(c);
+    }
+
+    private static void ApplySausageStrat(Config c)
+    {
+        SetMarkers(c, MarkerType.Bind1, MarkerType.Bind2, MarkerType.Attack1, MarkerType.Attack4, MarkerType.Attack2, MarkerType.Attack3);
+        SetSpread(ref c.DegSpreadHelloNear, ref c.DegSpreadHelloNearCcw, 270f, 90f);
+        SetSpread(ref c.DegSpreadHelloFar, ref c.DegSpreadHelloFarCcw, 180f, 180f);
+        SetSpread(ref c.DegSpreadBaitArm1, ref c.DegSpreadBaitArm1Ccw, 317.5f, 317.5f);
+        SetSpread(ref c.DegSpreadBaitArm2, ref c.DegSpreadBaitArm2Ccw, 17.5f, 17.5f);
+        SetSpread(ref c.DegSpreadBaitFar1, ref c.DegSpreadBaitFar1Ccw, 0f, 0f);
+        SetSpread(ref c.DegSpreadBaitFar2, ref c.DegSpreadBaitFar2Ccw, 180f, 180f);
+        SetSpread(ref c.DegSpreadBaitNear1, ref c.DegSpreadBaitNear1Ccw, 270f, 90f);
+        SetSpread(ref c.DegSpreadBaitNear2, ref c.DegSpreadBaitNear2Ccw, 247.5f, 112.5f);
+        ApplySharedSpreadGroups(c);
+    }
+
+    private static void SetMarkers(Config c, MarkerType arm1, MarkerType arm2, MarkerType far1, MarkerType far2, MarkerType near1, MarkerType near2)
+    {
+        c.BaitArm1Marker = arm1;
+        c.BaitArm2Marker = arm2;
+        c.BaitFar1Marker = far1;
+        c.BaitFar2Marker = far2;
+        c.BaitNear1Marker = near1;
+        c.BaitNear2Marker = near2;
+    }
+
+    private static void SetSpread(ref float cw, ref float ccw, float cwValue, float ccwValue)
+    {
+        cw = cwValue;
+        ccw = ccwValue;
+    }
+
+    private static void ApplySharedSpreadGroups(Config c)
+    {
+        c.SpreadGroupHelloNear = Group.South;
+        c.SpreadGroupHelloFar = Group.South;
+        c.SpreadGroupBaitArm1 = Group.North;
+        c.SpreadGroupBaitArm2 = Group.North;
+        c.SpreadGroupBaitFar1 = Group.North;
+        c.SpreadGroupBaitFar2 = Group.South;
+        c.SpreadGroupBaitNear1 = Group.South;
+        c.SpreadGroupBaitNear2 = Group.South;
+        c.SpreadGroupBaitNearDual = Group.South;
+    }
+
+    private void RecomputeDerivedRoles()
+    {
+        ApplyMarkerRoles();
+        ApplyNearFarRoles();
+        ResolveRemainingNearRoles();
+    }
+
+    private void DrawDebugMarkerCombo(PlayerData player)
+    {
+        ImGui.PushID($"m{player.ObjectId:X16}");
+        var choice = ToEditableMarkerType(player.MarkerP1);
+        var before = player.MarkerP1;
+        ImGui.SetNextItemWidth(MathF.Min(240f, ImGui.GetContentRegionAvail().X));
+        ImGuiEx.EnumCombo("##dbgMarker", ref choice);
+        var after = FromEditableMarkerType(choice);
+        if(after != before)
+        {
+            player.MarkerP1 = after;
+            if(_players.Count == 8)
+                RecomputeDerivedRoles();
+        }
+
+        if(player.MarkerP1 != MarkerP1Unset && !Enum.IsDefined(typeof(MarkerType), player.MarkerP1))
+            ImGui.TextDisabled($"non-enum p1={player.MarkerP1}");
+        ImGui.PopID();
+    }
+
+    private static MarkerType ToEditableMarkerType(uint p1)
+    {
+        if(p1 == MarkerP1Unset)
+            return MarkerType.None;
+        return Enum.IsDefined(typeof(MarkerType), p1) ? (MarkerType)p1 : MarkerType.None;
+    }
+
+    private static uint FromEditableMarkerType(MarkerType m)
+        => m == MarkerType.None ? MarkerP1Unset : (uint)m;
+
+    private bool IsPhaseFive() => Controller.Scene == SceneId;
+
+    private void BuildPartySnapshot()
+    {
+        _players.Clear();
+        foreach(var pc in Controller.GetPartyMembers().OfType<IPlayerCharacter>())
+        {
+            _players[pc.GameObjectId] = new PlayerData
+            {
+                ObjectId = pc.GameObjectId,
+                Name = pc.Name.ToString(),
+                MarkerP1 = MarkerP1Unset,
+                Role = Role.None
+            };
+        }
+    }
+
+    private void ApplyMarkerRoles()
+    {
+        foreach(var player in _players.Values)
+        {
+            player.Role = player.MarkerP1 switch
+            {
+                var x when x == (uint)C.BaitArm1Marker => Role.BaitArm1,
+                var x when x == (uint)C.BaitArm2Marker => Role.BaitArm2,
+                var x when x == (uint)C.BaitFar1Marker => Role.BaitFar1,
+                var x when x == (uint)C.BaitFar2Marker => Role.BaitFar2,
+                _ => Role.None
+            };
+        }
+    }
+
+    private void ApplyNearFarRoles()
+    {
+        foreach(var (objectId, player) in _players.ToArray())
+        {
+            var obj = Svc.Objects.FirstOrDefault(x => x.GameObjectId == objectId) as IPlayerCharacter;
+            if(obj == null) continue;
+            if(obj.StatusList.Any(x => x.StatusId == StatusHelloNear))
+                player.Role = Role.HelloNear;
+            else if(obj.StatusList.Any(x => x.StatusId == StatusHelloFar))
+                player.Role = Role.HelloFar;
+        }
+    }
+
+    private void ResolveRemainingNearRoles()
+    {
+        var remaining = _players.Values.Where(x => x.Role == Role.None).ToList();
+        if(remaining.Count != 2) return;
+
+        var withMarker = remaining.Where(x => HasRaidMarkerP1(x.MarkerP1)).ToList();
+        if(withMarker.Count == 2)
+        {
+            foreach(var player in withMarker)
+            {
+                player.Role = player.MarkerP1 switch
+                {
+                    var x when x == (uint)C.BaitNear1Marker => Role.BaitNear1,
+                    var x when x == (uint)C.BaitNear2Marker => Role.BaitNear2,
+                    _ => Role.None
+                };
+            }
+            return;
+        }
+
+        if(withMarker.Count == 1)
+        {
+            withMarker[0].Role = Role.BaitNear1;
+            remaining.First(x => x.ObjectId != withMarker[0].ObjectId).Role = Role.BaitNear2;
+            return;
+        }
+
+        remaining[0].Role = Role.BaitNear;
+        remaining[1].Role = Role.BaitNear;
+    }
+
+    private Vector3 GetRazorSafePosition(Role role)
+    {
+        var group = GetGroup(role);
+        var angle = _isClockwise
+            ? (group == Group.North ? _initAngle - 22.5f : _initAngle - 22.5f + 180f)
+            : (group == Group.North ? _initAngle + 22.5f : _initAngle + 22.5f + 180f);
+        return CalculatePointFromCenterByDegree(ArenaCenter, 19f, angle);
+    }
+
+    private void UpdateSpreadNavigation(Role role)
+    {
+        DisableElement(NaviSubElement);
+        if(!TryGetSpreadAngles(role, out var angle, out var subAngle))
+        {
+            DisableElement(NaviElement);
+            return;
+        }
+
+        UpdateNavigation(NaviElement, CalculatePointFromCenterByDegree(ArenaCenter, GetSpreadRadius(role), angle), true);
+        if(subAngle != null)
+            UpdateNavigation(NaviSubElement, CalculatePointFromCenterByDegree(ArenaCenter, GetSpreadSubRadius(role), subAngle.Value), true);
+    }
+
+    private bool TryGetSpreadAngles(Role role, out float angle, out float? subAngle)
+    {
+        if(!TryGetSpreadOffsets(role, out var primaryOffset, out var secondaryOffset))
+        {
+            angle = default;
+            subAngle = null;
+            return false;
+        }
+
+        angle = _initAngle + primaryOffset;
+        subAngle = secondaryOffset != null ? _initAngle + secondaryOffset.Value : null;
+        return true;
+    }
+
+    private bool TryGetSpreadOffsets(Role role, out float primaryOffset, out float? secondaryOffset)
+    {
+        secondaryOffset = null;
+        switch(role)
+        {
+            case Role.HelloNear:
+                primaryOffset = SpreadOffsetByDirection(C.DegSpreadHelloNear, C.DegSpreadHelloNearCcw);
+                return true;
+            case Role.HelloFar:
+                primaryOffset = SpreadOffsetByDirection(C.DegSpreadHelloFar, C.DegSpreadHelloFarCcw);
+                return true;
+            case Role.BaitArm1:
+                primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitArm1, C.DegSpreadBaitArm1Ccw);
+                return true;
+            case Role.BaitArm2:
+                primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitArm2, C.DegSpreadBaitArm2Ccw);
+                return true;
+            case Role.BaitFar1:
+                primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitFar1, C.DegSpreadBaitFar1Ccw);
+                return true;
+            case Role.BaitFar2:
+                primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitFar2, C.DegSpreadBaitFar2Ccw);
+                return true;
+            case Role.BaitNear1:
+                primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear1, C.DegSpreadBaitNear1Ccw);
+                return true;
+            case Role.BaitNear2:
+                primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear2, C.DegSpreadBaitNear2Ccw);
+                return true;
+            case Role.BaitNear:
+                primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear1, C.DegSpreadBaitNear1Ccw);
+                secondaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear2, C.DegSpreadBaitNear2Ccw);
+                return true;
+            default:
+                primaryOffset = default;
+                return false;
+        }
+    }
+
+    private float SpreadOffsetByDirection(float clockwiseDegrees, float counterClockwiseDegrees)
+        => _isClockwise ? ClampSpreadConfigDegrees(clockwiseDegrees) : ClampSpreadConfigDegrees(counterClockwiseDegrees);
+
+    private Group GetGroup(Role role)
+        => role switch
+        {
+            Role.HelloNear => C.SpreadGroupHelloNear,
+            Role.HelloFar => C.SpreadGroupHelloFar,
+            Role.BaitArm1 => C.SpreadGroupBaitArm1,
+            Role.BaitArm2 => C.SpreadGroupBaitArm2,
+            Role.BaitFar1 => C.SpreadGroupBaitFar1,
+            Role.BaitFar2 => C.SpreadGroupBaitFar2,
+            Role.BaitNear1 => C.SpreadGroupBaitNear1,
+            Role.BaitNear2 => C.SpreadGroupBaitNear2,
+            Role.BaitNear => C.SpreadGroupBaitNearDual,
+            _ => Group.South
+        };
+
+    private static Vector3 CalculatePointFromCenterByDegree(Vector3 center, float radius, float degree)
+    {
+        var rad = degree.DegToRad();
+        return new Vector3(
+            center.X + MathF.Sin(rad) * radius,
+            center.Y,
+            center.Z - MathF.Cos(rad) * radius
+        );
+    }
+
+    private IBattleNpc? FindNpcByDataId(uint dataId)
+        => Svc.Objects.OfType<IBattleNpc>().FirstOrDefault(x => x.DataId == dataId);
+
+    private void UpdateNavigation(string elementName, Vector3 position, bool tether)
+    {
+        if(!Controller.TryGetElementByName(elementName, out var element)) return;
+        element.color = ImGui.ColorConvertFloat4ToU32(GetRainbowColor(4d));
+        element.SetRefPosition(position);
+        element.tether = tether;
+        element.Enabled = true;
+    }
+
+    private static bool HasRaidMarkerP1(uint p1)
+        => p1 != MarkerP1Unset && Enum.IsDefined(typeof(MarkerType), p1) && p1 != (uint)MarkerType.None;
+
+    private float GetSpreadRadius(Role role)
+        => role switch
+        {
+            Role.HelloNear => ClampSpreadRadius(C.RadiusHelloNear),
+            Role.HelloFar => ClampSpreadRadius(C.RadiusHelloFar),
+            Role.BaitArm1 => ClampSpreadRadius(C.RadiusBaitArm1),
+            Role.BaitArm2 => ClampSpreadRadius(C.RadiusBaitArm2),
+            Role.BaitFar1 => ClampSpreadRadius(C.RadiusBaitFar1),
+            Role.BaitFar2 => ClampSpreadRadius(C.RadiusBaitFar2),
+            Role.BaitNear1 => ClampSpreadRadius(C.RadiusBaitNear1),
+            Role.BaitNear2 => ClampSpreadRadius(C.RadiusBaitNear2),
+            Role.BaitNear => ClampSpreadRadius(C.RadiusBaitNearDual),
+            _ => DefaultOtherSpreadRadius
+        };
+
+    private float GetSpreadSubRadius(Role role)
+        => role == Role.BaitNear ? ClampSpreadRadius(C.RadiusBaitNear2) : GetSpreadRadius(role);
+
+    private void DisableNavigationElements()
+    {
+        DisableElement(NaviElement);
+        DisableElement(NaviSubElement);
+    }
+
+    private void DisableElement(string elementName)
+    {
+        if(Controller.TryGetElementByName(elementName, out var element))
+            element.Enabled = false;
+    }
+
+    private static float GetRelativeAngleFromArenaCenter(Vector3 position)
+        => MathHelper.GetRelativeAngle(ArenaCenter, position);
+
+    private static float NormalizeDegrees(float degrees)
+    {
+        var n = degrees % 360f;
+        return n < 0f ? n + 360f : n;
+    }
+
+    private Vector4 GetRainbowColor(double cycleSeconds)
+    {
+        if(cycleSeconds <= 0d) cycleSeconds = 1d;
+        var normalizedTime = Environment.TickCount64 / 1000d / cycleSeconds;
+        var hue = normalizedTime % 1f;
+        return HsvToVector4(hue, 1f, 1f);
+    }
+
+    private static Vector4 HsvToVector4(double h, double s, double v)
+    {
+        double r = 0d;
+        double g = 0d;
+        double b = 0d;
+        var i = (int)(h * 6d);
+        var f = h * 6d - i;
+        var p = v * (1d - s);
+        var q = v * (1d - f * s);
+        var t = v * (1d - (1d - f) * s);
+
+        switch(i % 6)
+        {
+            case 0: r = v; g = t; b = p; break;
+            case 1: r = q; g = v; b = p; break;
+            case 2: r = p; g = v; b = t; break;
+            case 3: r = p; g = q; b = v; break;
+            case 4: r = t; g = p; b = v; break;
+            case 5: r = v; g = p; b = q; break;
+        }
+
+        return new Vector4((float)r, (float)g, (float)b, 1f);
+    }
+}

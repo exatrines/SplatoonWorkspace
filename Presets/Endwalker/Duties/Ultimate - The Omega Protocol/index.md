@@ -36,6 +36,19 @@ for JP
 ### Configration
 設定不要
 
+## P5 Dynamis Sigma Hello World
+```
+https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Sigma_Hello_World.cs
+```
+
+P5のコードデュナミス・シグマのハロワ処理のスクリプトです。マーカーとデバフをもとに散開先を確定します。また、回転ビームとオメガFのブレードアクションも回避するようガイドされます。
+
+### Configration
+ハムカツとSausageのプリセットを用意しています。これらの処理方以外の設定が必要な場合は手動で設定してください。
+
+### Configration Sample
+りりどマクロの場合は「Import Hamukatu Strat」で問題ありません。
+
 ## P5 Dynamis Omega Safe Guide
 ```
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Omega_Safe_Guide.cs

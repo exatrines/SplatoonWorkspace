@@ -1,5 +1,8 @@
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.ClientState.Statuses;
+using Dalamud.Interface.Windowing;
 using ECommons;
 using ECommons.Automation;
 using ECommons.Configuration;
@@ -12,8 +15,6 @@ using ECommons.Hooks.ActionEffectTypes;
 using ECommons.Schedulers;
 using ECommons.SimpleGui;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using Dalamud.Bindings.ImGui;
-using Dalamud.Interface.Windowing;
 using Splatoon.SplatoonScripting;
 using Splatoon.SplatoonScripting.Priority;
 using System;
@@ -25,6 +26,12 @@ namespace SplatoonScriptsOfficial.Duties.Endwalker.The_Omega_Protocol;
 
 public class P5_Marking_Helper : SplatoonScript
 {
+    #region Metadata
+    public override Metadata? Metadata => new(1, "mirage");
+    public override HashSet<uint>? ValidTerritories => [TerritoryTop];
+    #endregion
+
+    #region Constant
     private const uint TerritoryTop = 1122;
 
     private const uint StatusFirstTarget = 3004;
@@ -43,7 +50,11 @@ public class P5_Marking_Helper : SplatoonScript
     private const float OverlayMinWidth = 300f;
     private static readonly Vector2 OverlayDefaultOffset = new(20f, 80f);
     private static readonly Vector2 OverlayInitialSize = new(OverlayMinWidth, 0f);
+    #endregion
 
+    private Config C => Controller.GetConfig<Config>();
+
+    #region State
     private PendingResolve _pendingResolve;
     private bool _waitingNearAfterCast;
     private List<IPlayerCharacter> _lastOmega1Bind = new();
@@ -51,280 +62,11 @@ public class P5_Marking_Helper : SplatoonScript
     private AssignmentSnapshot? _omega1Snapshot;
     private AssignmentSnapshot? _omega2Snapshot;
     private OverlayWindow? _overlayWindow;
+    #endregion
 
-    public override HashSet<uint>? ValidTerritories => [TerritoryTop];
-    public override Metadata? Metadata => new(1, "mirage");
-
-    private Config C => Controller.GetConfig<Config>();
     private string OverlayWindowName => "P5 Marking Helper###P5_Marking_Helper";
 
-    public override void OnSetup()
-    {
-        _overlayWindow ??= new OverlayWindow(this);
-        _overlayWindow.IsOpen = C.ShowOverlay && Svc.ClientState.TerritoryType == TerritoryTop;
-    }
-
-    public override void OnDisable()
-    {
-        _overlayWindow?.Dispose();
-        _overlayWindow = null;
-    }
-
-    public override void OnUpdate()
-    {
-        _overlayWindow ??= new OverlayWindow(this);
-        _overlayWindow.IsOpen = C.ShowOverlay && Svc.ClientState.TerritoryType == TerritoryTop;
-    }
-
-    public override void OnStartingCast(uint source, uint castId)
-    {
-        // シグマまたはオメガキャスト開始時に、ハローワールド・ニア付与を待つ
-        if(castId == CastCodeSigma)
-        {
-            BeginNearTriggerSequence(PendingResolve.Sigma);
-        }
-        else if(castId == CastCodeOmega)
-        {
-            BeginNearTriggerSequence(PendingResolve.Omega1);
-        }
-    }
-
-    public override void OnGainBuffEffect(uint sourceId, Status status)
-    {
-        // ハローワールド・ニア付与時にマーキング計算を実行
-        if(!IsPartyMember(sourceId)) return;
-
-        if(status.StatusId == StatusHelloNear && _waitingNearAfterCast)
-        {
-            _ = new TickScheduler(() =>
-            {
-                if(!_waitingNearAfterCast) return;
-                ResolveNearTrigger();
-            }, ResolveDelayMs);
-        }
-    }
-
-    public override void OnReset()
-    {
-        ResetState();
-        _sigmaSnapshot = null;
-        _omega1Snapshot = null;
-        _omega2Snapshot = null;
-    }
-
-    public override void OnSettingsDraw()
-    {
-        C.PriorityData.Draw();
-        ImGui.Text("Basic Settings");
-        ImGui.Checkbox("Show Sigma Helper (LDPU)", ref C.ShowSigma);
-        ImGui.Text("Overlay Settings");
-        ImGui.Checkbox("Show Overlay", ref C.ShowOverlay);
-        ImGui.Checkbox("Lock Overlay Position", ref C.OverlayLockPosition);
-        ImGui.Checkbox("Make Overlay Transparent", ref C.OverlayTransparent);
-        if(C.OverlayTransparent)
-        {
-            ImGui.SetNextItemWidth(120);
-            ImGui.SliderFloat("Overlay Transparency", ref C.OverlayBgAlpha, 0.05f, 1.0f, "%.2f");
-        }
-    }
-
-    private void ResolveSigma(List<IPlayerCharacter> party)
-    {
-        var none = OrderByConfigPriority(party.Where(x => HasStatus(x, StatusHelloNear) || HasStatus(x, StatusHelloFar))).Take(NoneCount).ToList();
-        var bind = OrderByConfigPriority(party.Except(none)).Where(x => GetDynamisStack(x) > 0).Take(BindCount).ToList();
-        var attack = OrderByConfigPriority(party.Except(none).Except(bind)).Take(AttackCount).ToList();
-        OutputAssignment("sigma", none, bind, attack);
-    }
-
-    private void ResolveOmega1(List<IPlayerCharacter> party)
-    {
-        var none = OrderByConfigPriority(party.Where(x => HasStatus(x, StatusFirstTarget))).Take(NoneCount).ToList();
-
-        var bind = party
-            .Except(none)
-            .OrderBy(x => GetOmega1BindTier(x))
-            .ThenBy(GetPriorityIndex)
-            .Take(BindCount)
-            .ToList();
-        
-        _lastOmega1Bind = bind;
-
-        var attack = party
-            .Except(none)
-            .Except(bind)
-            .OrderBy(x => GetOmega1AttackTier(x))
-            .ThenBy(GetPriorityIndex)
-            .Take(AttackCount)
-            .ToList();
-
-        OutputAssignment("omega-1", none, bind, attack);
-    }
-
-    private void ResolveOmega2(List<IPlayerCharacter> party)
-    {
-        var none = OrderByConfigPriority(party.Where(x => HasStatus(x, StatusSecondTarget))).Take(NoneCount).ToList();
-        var bind = OrderByConfigPriority(party.Except(none).Except(_lastOmega1Bind).Where(x => GetDynamisStack(x) == 2)).Take(BindCount).ToList();
-        var attack = OrderByConfigPriority(party.Except(none).Except(bind)).Take(AttackCount).ToList();
-        OutputAssignment("omega-2", none, bind, attack);
-    }
-
-    private void BeginNearTriggerSequence(PendingResolve resolve)
-    {
-        _pendingResolve = resolve;
-        _waitingNearAfterCast = true;
-    }
-
-    private void ResolveNearTrigger()
-    {
-        var party = GetPartyMembers();
-        if(party.Count < MinPartySize) return;
-
-        switch(_pendingResolve)
-        {
-            case PendingResolve.Sigma:
-                _waitingNearAfterCast = false;
-                _pendingResolve = PendingResolve.None;
-                ResolveSigma(party);
-                break;
-            case PendingResolve.Omega1:
-                _waitingNearAfterCast = false;
-                _pendingResolve = PendingResolve.None;
-                ResolveOmega1(party);
-                ResolveOmega2(party);
-                break;
-        }
-    }
-
-    private void ResetState()
-    {
-        _pendingResolve = PendingResolve.None;
-        _waitingNearAfterCast = false;
-    }
-
-    private void OutputAssignment(string phaseName, List<IPlayerCharacter> none, List<IPlayerCharacter> bind, List<IPlayerCharacter> attack)
-    {
-        var noneText = string.Join(" ", none.Select(GetJobName));
-        var bindText = string.Join(" ", bind.Select(GetJobName));
-        var attackText = string.Join(" ", attack.Select(GetJobName));
-
-        var snapshot = new AssignmentSnapshot
-        {
-            PhaseName = phaseName,
-            NoneText = noneText,
-            BindText = bindText,
-            AttackText = attackText,
-        };
-
-        // フェーズに応じてスナップショットを保存
-        switch(phaseName)
-        {
-            case "sigma":
-                _sigmaSnapshot = snapshot;
-                break;
-            case "omega-1":
-                _omega1Snapshot = snapshot;
-                break;
-            case "omega-2":
-                _omega2Snapshot = snapshot;
-                break;
-        }
-
-    }
-
-
-    private void DrawOverlay()
-    {
-        ImGui.Text("P5 Marking Helper");
-        ImGui.Separator();
-        ImGui.Separator();
-        if(C.ShowSigma)
-        {
-            DrawPhaseSection("Sigma", _sigmaSnapshot);
-            ImGui.Separator();
-        }
-        DrawPhaseSection("Omega1", _omega1Snapshot);
-        ImGui.Separator();
-        DrawPhaseSection("Omega2", _omega2Snapshot);
-    }
-
-    private void DrawPhaseSection(string phaseName, AssignmentSnapshot? snapshot)
-    {
-        ImGui.Text($"▼ {phaseName}");
-        if(snapshot == null)
-        {
-            ImGui.Text("  none: ");
-            ImGui.Text("  bind: ");
-            ImGui.Text("  attack: ");
-        }
-        else
-        {
-            ImGui.Text($"  none: {snapshot.NoneText}");
-            ImGui.Text($"  bind: {snapshot.BindText}");
-            ImGui.Text($"  attack: {snapshot.AttackText}");
-        }
-    }
-
-    private List<IPlayerCharacter> OrderByConfigPriority(IEnumerable<IPlayerCharacter> players)
-        => players.OrderBy(GetPriorityIndex).ThenBy(x => x.EntityId).ToList();
-
-    private int GetPriorityIndex(IPlayerCharacter player)
-    {
-        var name = player.Name.ToString();
-        var priority = C.PriorityData.GetPlayers(_ => true)?.ToList();
-        if(priority == null) return int.MaxValue;
-
-        for(var i = 0; i < priority.Count; i++)
-        {
-            if(priority[i].Name == name) return i;
-        }
-
-        return int.MaxValue;
-    }
-
-    private int GetOmega1BindTier(IPlayerCharacter player)
-    {
-        var stack = GetDynamisStack(player);
-        var secondTarget = HasStatus(player, StatusSecondTarget);
-
-        if(secondTarget && stack == 2) return 0;
-        if(stack == 2) return 1;
-        if(stack == 1) return 2;
-        return 99;
-    }
-
-    private int GetOmega1AttackTier(IPlayerCharacter player)
-    {
-        var stack = GetDynamisStack(player);
-        if(stack == 2) return 0;
-        if(stack == 1) return 1;
-        return 99;
-    }
-
-    private int GetDynamisStack(IPlayerCharacter player)
-    {
-        if(player == null || player.StatusList == null) return 0;
-
-        foreach(var status in player.StatusList)
-        {
-            if(status.StatusId == StatusDynamis)
-                return status.Param;
-        }
-
-        return 0;
-    }
-
-    private static bool HasStatus(IPlayerCharacter player, uint statusId)
-        => player.StatusList.Any(x => x.StatusId == statusId);
-
-    private static string GetJobName(IPlayerCharacter player)
-        => player.GetJob().ToString();
-
-    private static List<IPlayerCharacter> GetPartyMembers()
-        => FakeParty.Get().ToList();
-
-    private static bool IsPartyMember(uint entityId)
-        => FakeParty.Get().Any(x => x.EntityId == entityId);
-
+    #region Private Class
     private enum PendingResolve
     {
         None,
@@ -397,7 +139,292 @@ public class P5_Marking_Helper : SplatoonScript
         public string BindText = string.Empty;
         public string AttackText = string.Empty;
     }
+    #endregion
 
+    #region LifeCycle
+    public override void OnSetup()
+    {
+        _overlayWindow ??= new OverlayWindow(this);
+        _overlayWindow.IsOpen = C.ShowOverlay && Svc.ClientState.TerritoryType == TerritoryTop;
+    }
+
+    public override void OnUpdate()
+    {
+        _overlayWindow ??= new OverlayWindow(this);
+        _overlayWindow.IsOpen = C.ShowOverlay && Svc.ClientState.TerritoryType == TerritoryTop;
+    }
+
+    public override void OnReset()
+    {
+        ResetState();
+        _sigmaSnapshot = null;
+        _omega1Snapshot = null;
+        _omega2Snapshot = null;
+    }
+
+    public override void OnDisable()
+    {
+        _overlayWindow?.Dispose();
+        _overlayWindow = null;
+    }
+
+    public override void OnStartingCast(uint source, uint castId)
+    {
+        // Wait for Hello World Near after sigma or omega cast.
+        if(castId == CastCodeSigma)
+        {
+            BeginNearTriggerSequence(PendingResolve.Sigma);
+        }
+        else if(castId == CastCodeOmega)
+        {
+            BeginNearTriggerSequence(PendingResolve.Omega1);
+        }
+    }
+
+    public override void OnGainBuffEffect(uint sourceId, Status status)
+    {
+        // Run assignment when Hello Near applies after the watched cast.
+        if(!IsPartyMember(sourceId)) return;
+
+        if(status.StatusId == StatusHelloNear && _waitingNearAfterCast)
+        {
+            _ = new TickScheduler(() =>
+            {
+                if(!_waitingNearAfterCast) return;
+                ResolveNearTrigger();
+            }, ResolveDelayMs);
+        }
+    }
+
+    public override void OnSettingsDraw()
+    {
+        ImGui.Text($"BasePlayer: {Controller.BasePlayer?.Name.ToString() ?? "null"}");
+        C.PriorityData.Draw();
+        ImGui.Text("Basic Settings");
+        ImGui.Checkbox("Show Sigma Helper (LDPU)", ref C.ShowSigma);
+        ImGui.Text("Overlay Settings");
+        ImGui.Checkbox("Show Overlay", ref C.ShowOverlay);
+        ImGui.Checkbox("Lock Overlay Position", ref C.OverlayLockPosition);
+        ImGui.Checkbox("Make Overlay Transparent", ref C.OverlayTransparent);
+        if(C.OverlayTransparent)
+        {
+            ImGui.SetNextItemWidth(120);
+            ImGui.SliderFloat("Overlay Transparency", ref C.OverlayBgAlpha, 0.05f, 1.0f, "%.2f");
+        }
+    }
+    #endregion
+
+    #region Private Method
+    // Sigma LDPU: none from hello debuffs, bind from dynamis, rest attack.
+    private void ResolveSigma(List<IPlayerCharacter> party)
+    {
+        var none = OrderByConfigPriority(party.Where(x => HasStatus(x, StatusHelloNear) || HasStatus(x, StatusHelloFar))).Take(NoneCount).ToList();
+        var bind = OrderByConfigPriority(party.Except(none)).Where(x => GetDynamisStack(x) > 0).Take(BindCount).ToList();
+        var attack = OrderByConfigPriority(party.Except(none).Except(bind)).Take(AttackCount).ToList();
+        OutputAssignment("sigma", none, bind, attack);
+    }
+
+    // Omega-1: none from first target; bind tiered; rest attack.
+    private void ResolveOmega1(List<IPlayerCharacter> party)
+    {
+        var none = OrderByConfigPriority(party.Where(x => HasStatus(x, StatusFirstTarget))).Take(NoneCount).ToList();
+
+        var bind = party
+            .Except(none)
+            .OrderBy(x => GetOmega1BindTier(x))
+            .ThenBy(GetPriorityIndex)
+            .Take(BindCount)
+            .ToList();
+
+        _lastOmega1Bind = bind;
+
+        var attack = party
+            .Except(none)
+            .Except(bind)
+            .OrderBy(x => GetOmega1AttackTier(x))
+            .ThenBy(GetPriorityIndex)
+            .Take(AttackCount)
+            .ToList();
+
+        OutputAssignment("omega-1", none, bind, attack);
+    }
+
+    // Omega-2: none from second target; bind two-stack excluding omega1 binds.
+    private void ResolveOmega2(List<IPlayerCharacter> party)
+    {
+        var none = OrderByConfigPriority(party.Where(x => HasStatus(x, StatusSecondTarget))).Take(NoneCount).ToList();
+        var bind = OrderByConfigPriority(party.Except(none).Except(_lastOmega1Bind).Where(x => GetDynamisStack(x) == 2)).Take(BindCount).ToList();
+        var attack = OrderByConfigPriority(party.Except(none).Except(bind)).Take(AttackCount).ToList();
+        OutputAssignment("omega-2", none, bind, attack);
+    }
+
+    // Arms delayed resolve until Hello Near buff.
+    private void BeginNearTriggerSequence(PendingResolve resolve)
+    {
+        _pendingResolve = resolve;
+        _waitingNearAfterCast = true;
+    }
+
+    // Runs the correct resolver for the pending phase after party check.
+    private void ResolveNearTrigger()
+    {
+        var party = GetPartyMembers();
+        if(party.Count < MinPartySize) return;
+
+        switch(_pendingResolve)
+        {
+            case PendingResolve.Sigma:
+                _waitingNearAfterCast = false;
+                _pendingResolve = PendingResolve.None;
+                ResolveSigma(party);
+                break;
+            case PendingResolve.Omega1:
+                _waitingNearAfterCast = false;
+                _pendingResolve = PendingResolve.None;
+                ResolveOmega1(party);
+                ResolveOmega2(party);
+                break;
+        }
+    }
+
+    // Clears pending near-trigger flags.
+    private void ResetState()
+    {
+        _pendingResolve = PendingResolve.None;
+        _waitingNearAfterCast = false;
+    }
+
+    // Stores overlay snapshot text for a phase name.
+    private void OutputAssignment(string phaseName, List<IPlayerCharacter> none, List<IPlayerCharacter> bind, List<IPlayerCharacter> attack)
+    {
+        var noneText = string.Join(" ", none.Select(GetJobName));
+        var bindText = string.Join(" ", bind.Select(GetJobName));
+        var attackText = string.Join(" ", attack.Select(GetJobName));
+
+        var snapshot = new AssignmentSnapshot
+        {
+            PhaseName = phaseName,
+            NoneText = noneText,
+            BindText = bindText,
+            AttackText = attackText,
+        };
+
+        switch(phaseName)
+        {
+            case "sigma":
+                _sigmaSnapshot = snapshot;
+                break;
+            case "omega-1":
+                _omega1Snapshot = snapshot;
+                break;
+            case "omega-2":
+                _omega2Snapshot = snapshot;
+                break;
+        }
+    }
+
+    // Renders the floating overlay window body.
+    private void DrawOverlay()
+    {
+        ImGui.Text("P5 Marking Helper");
+        ImGui.Separator();
+        ImGui.Separator();
+        if(C.ShowSigma)
+        {
+            DrawPhaseSection("Sigma", _sigmaSnapshot);
+            ImGui.Separator();
+        }
+        DrawPhaseSection("Omega1", _omega1Snapshot);
+        ImGui.Separator();
+        DrawPhaseSection("Omega2", _omega2Snapshot);
+    }
+
+    // One phase block in the overlay.
+    private void DrawPhaseSection(string phaseName, AssignmentSnapshot? snapshot)
+    {
+        ImGui.Text($"▼ {phaseName}");
+        if(snapshot == null)
+        {
+            ImGui.Text("  none: ");
+            ImGui.Text("  bind: ");
+            ImGui.Text("  attack: ");
+        }
+        else
+        {
+            ImGui.Text($"  none: {snapshot.NoneText}");
+            ImGui.Text($"  bind: {snapshot.BindText}");
+            ImGui.Text($"  attack: {snapshot.AttackText}");
+        }
+    }
+
+    // Stable party ordering from priority config then entity id.
+    private List<IPlayerCharacter> OrderByConfigPriority(IEnumerable<IPlayerCharacter> players)
+        => players.OrderBy(GetPriorityIndex).ThenBy(x => x.EntityId).ToList();
+
+    // Index in script priority list (fallback max).
+    private int GetPriorityIndex(IPlayerCharacter player)
+    {
+        var name = player.Name.ToString();
+        var priority = C.PriorityData.GetPlayers(_ => true)?.ToList();
+        if(priority == null) return int.MaxValue;
+
+        for(var i = 0; i < priority.Count; i++)
+        {
+            if(priority[i].Name == name) return i;
+        }
+
+        return int.MaxValue;
+    }
+
+    // Sort key for omega-1 bind (second target + stacks).
+    private int GetOmega1BindTier(IPlayerCharacter player)
+    {
+        var stack = GetDynamisStack(player);
+        var secondTarget = HasStatus(player, StatusSecondTarget);
+
+        if(secondTarget && stack == 2) return 0;
+        if(stack == 2) return 1;
+        if(stack == 1) return 2;
+        return 99;
+    }
+
+    // Sort key for omega-1 attack line.
+    private int GetOmega1AttackTier(IPlayerCharacter player)
+    {
+        var stack = GetDynamisStack(player);
+        if(stack == 2) return 0;
+        if(stack == 1) return 1;
+        return 99;
+    }
+
+    // Dynamis stack count from status param.
+    private int GetDynamisStack(IPlayerCharacter player)
+    {
+        if(player == null || player.StatusList == null) return 0;
+
+        foreach(var status in player.StatusList)
+        {
+            if(status.StatusId == StatusDynamis)
+                return status.Param;
+        }
+
+        return 0;
+    }
+
+    private static bool HasStatus(IPlayerCharacter player, uint statusId)
+        => player.StatusList.Any(x => x.StatusId == statusId);
+
+    private static string GetJobName(IPlayerCharacter player)
+        => player.GetJob().ToString();
+
+    private static List<IPlayerCharacter> GetPartyMembers()
+        => FakeParty.Get().ToList();
+
+    private static bool IsPartyMember(uint entityId)
+        => FakeParty.Get().Any(x => x.EntityId == entityId);
+    #endregion
+
+    #region Config
     private class Config : IEzConfig
     {
         public PriorityData PriorityData = new();
@@ -407,4 +434,5 @@ public class P5_Marking_Helper : SplatoonScript
         public bool OverlayTransparent;
         public float OverlayBgAlpha = 0.25f;
     }
+    #endregion
 }

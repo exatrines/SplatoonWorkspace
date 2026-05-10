@@ -1,7 +1,7 @@
 # The Omega Protocol
 ## P3 Transition
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P3%20Transition.cs
+https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P3_Transition.cs
 ```
 
 P3のコロッサスブローをフルガイドするスクリプトです。パルス（ドーナツ範囲）のAOEは表示されないので、任意のレイアウトを導入してください。

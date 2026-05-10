@@ -19,9 +19,13 @@ namespace SplatoonScriptsOfficial.Duties.Endwalker.The_Omega_Protocol;
 
 public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 {
+    #region Metadata
     public override Metadata Metadata { get; } = new(1, "mirage");
-    public override HashSet<uint>? ValidTerritories => [1122];
+    public override HashSet<uint>? ValidTerritories => [TerritoryTop];
+    #endregion
 
+    #region Constant
+    private const uint TerritoryTop = 1122;
     private const uint SceneId = 6;
     private const uint DataIdOmegaFemale = 0x3D68;
     private const uint ActionCodeDynamisSigma = 32788;
@@ -44,7 +48,11 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
     private const string NaviSubElement = "navi_sub";
     private const float DefaultHelloSpreadRadius = 9.75f;
     private const float DefaultOtherSpreadRadius = 19f;
+    private const uint MarkerP1Unset = uint.MaxValue;
 
+    #endregion
+
+    #region Private Class
     private enum State
     {
         Wait,
@@ -99,7 +107,9 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         public Role Role = Role.None;
     }
 
-    private const uint MarkerP1Unset = uint.MaxValue;
+    #endregion
+
+    #region Config
 
     public sealed class Config : IEzConfig
     {
@@ -149,25 +159,21 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         public float RadiusBaitNearDual = DefaultOtherSpreadRadius;
     }
 
+    #endregion
+
+    #region State
     private Config C => Controller.GetConfig<Config>();
     private readonly Dictionary<ulong, PlayerData> _players = [];
     private State _state = State.Wait;
     private bool _isClockwise;
     private float _initAngle;
+    #endregion
 
+    #region LifeCycle
     public override void OnSetup()
     {
         Controller.RegisterElementFromCode(NaviElement, """{"Name":"navi","refX":100.0,"refY":100.0,"radius":0.5,"fillIntensity":0.5,"thicc":5.0,"tether":true}""", overwrite: true);
         Controller.RegisterElementFromCode(NaviSubElement, """{"Name":"navi_sub","refX":100.0,"refY":100.0,"radius":0.5,"fillIntensity":0.5,"thicc":5.0,"tether":true}""", overwrite: true);
-    }
-
-    public override void OnReset()
-    {
-        _players.Clear();
-        _state = State.Wait;
-        _isClockwise = false;
-        _initAngle = 0f;
-        DisableNavigationElements();
     }
 
     public override void OnUpdate()
@@ -232,6 +238,15 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
         if(_state == State.SpreadHelloWorld)
             UpdateSpreadNavigation(me.Role);
+    }
+
+    public override void OnReset()
+    {
+        _players.Clear();
+        _state = State.Wait;
+        _isClockwise = false;
+        _initAngle = 0f;
+        DisableNavigationElements();
     }
 
     public override void OnActionEffectEvent(ActionEffectSet set)
@@ -311,6 +326,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
     public override void OnSettingsDraw()
     {
+        ImGui.Text($"BasePlayer: {Controller.BasePlayer?.Name.ToString() ?? "null"}");
         ImGui.TextWrapped("This Script guides next 4 steps:");
         ImGui.TextWrapped("Step1: Spread Group. Step2: Avoid Razor. Step3: Avoid Omega-F actions (Foot or Staff). Step4: Spread Hello World.");
         ImGui.NewLine();
@@ -338,12 +354,17 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
             DrawDebugSection();
     }
 
+    #endregion
+
+    #region Private Method
+    // Settings button that fills config from a fixed JP-style strat preset.
     private void DrawImportButtons()
     {
         if(ImGui.Button("Import Japanese Strat"))
             ApplyJapaneseStrat(C);
     }
 
+    // Debug table: state, rotation, and per-player marker / role.
     private void DrawDebugSection()
     {
         ImGui.Text($"State: {_state}");
@@ -368,6 +389,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         ImGui.EndTable();
     }
 
+    // One settings row for hello roles (spread only, no marker column).
     private static void DrawRoleSettingsRowHelloDual(string roleLabel, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
     {
         ImGui.TableNextRow();
@@ -378,6 +400,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         DrawSpreadCells(roleLabel, ref spreadGroup, ref spreadCwDeg, ref spreadCcwDeg, ref radius);
     }
 
+    // One settings row: raid marker combo plus spread group and angles.
     private static void DrawRoleSettingsRowMarkerSpreadDual(string roleLabel, ref MarkerType marker, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
     {
         ImGui.TableNextRow();
@@ -388,6 +411,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         DrawSpreadCells(roleLabel, ref spreadGroup, ref spreadCwDeg, ref spreadCcwDeg, ref radius);
     }
 
+    // Narrow combo cell for a single MarkerType field.
     private static void DrawMarkerCell(string id, ref MarkerType marker)
     {
         ImGui.PushID(id);
@@ -396,6 +420,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         ImGui.PopID();
     }
 
+    // Table cells: spread hemisphere, cw angle, ccw angle, radius for one role row.
     private static void DrawSpreadCells(string idPrefix, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
     {
         ImGui.TableNextColumn();
@@ -420,6 +445,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         ImGui.PopID();
     }
 
+    // ImGui float input for a spread angle in degrees with clamping.
     private static void DrawSpreadConfigDegreesInput(ref float degrees)
     {
         degrees = ClampSpreadConfigDegrees(degrees);
@@ -428,9 +454,11 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         degrees = ClampSpreadConfigDegrees(degrees);
     }
 
+    // Clamps configured spread angle to the allowed editor range.
     private static float ClampSpreadConfigDegrees(float degrees)
         => Math.Clamp(degrees, SpreadConfigDegreesMin, SpreadConfigDegreesMax);
 
+    // ImGui float input for spread radius with clamping.
     private static void DrawSpreadRadiusInput(ref float radius)
     {
         radius = ClampSpreadRadius(radius);
@@ -439,9 +467,11 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         radius = ClampSpreadRadius(radius);
     }
 
+    // Ensures spread radius is not below the configured minimum.
     private static float ClampSpreadRadius(float radius)
         => Math.Max(SpreadRadiusMin, radius);
 
+    // Applies default JP strat markers, angles, and shared spread groups to config.
     private static void ApplyJapaneseStrat(Config c)
     {
         SetMarkers(c, MarkerType.Attack1, MarkerType.Attack2, MarkerType.Attack3, MarkerType.Attack4, MarkerType.None, MarkerType.None);
@@ -456,6 +486,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         ApplySharedSpreadGroups(c);
     }
 
+    // Writes bait marker enum fields on config in one call.
     private static void SetMarkers(Config c, MarkerType arm1, MarkerType arm2, MarkerType far1, MarkerType far2, MarkerType near1, MarkerType near2)
     {
         c.BaitArm1Marker = arm1;
@@ -466,12 +497,14 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         c.BaitNear2Marker = near2;
     }
 
+    // Sets both cw and ccw spread degree fields to fixed preset values.
     private static void SetSpread(ref float cw, ref float ccw, float cwValue, float ccwValue)
     {
         cw = cwValue;
         ccw = ccwValue;
     }
 
+    // Default north/south group picks for each bait spread slot (JP preset).
     private static void ApplySharedSpreadGroups(Config c)
     {
         c.SpreadGroupHelloNear = Group.South;
@@ -485,6 +518,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         c.SpreadGroupBaitNearDual = Group.South;
     }
 
+    // Re-runs marker → near/far → remaining near pairing after debug edits.
     private void RecomputeDerivedRoles()
     {
         ApplyMarkerRoles();
@@ -492,6 +526,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         ResolveRemainingNearRoles();
     }
 
+    // Debug UI: change raid marker P1 for a row and optionally recompute roles when party is full.
     private void DrawDebugMarkerCombo(PlayerData player)
     {
         ImGui.PushID($"m{player.ObjectId:X16}");
@@ -512,6 +547,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         ImGui.PopID();
     }
 
+    // Maps raw marker P1 to editor enum (unset or unknown become None).
     private static MarkerType ToEditableMarkerType(uint p1)
     {
         if(p1 == MarkerP1Unset)
@@ -519,11 +555,14 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         return Enum.IsDefined(typeof(MarkerType), p1) ? (MarkerType)p1 : MarkerType.None;
     }
 
+    // Maps editor marker choice back to game P1 value (None → unset sentinel).
     private static uint FromEditableMarkerType(MarkerType m)
         => m == MarkerType.None ? MarkerP1Unset : (uint)m;
 
+    // True when duty scene is P5 Dynamis.
     private bool IsPhaseFive() => Controller.Scene == SceneId;
 
+    // Rebuilds the eight-player snapshot from the current party list.
     private void BuildPartySnapshot()
     {
         _players.Clear();
@@ -539,6 +578,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         }
     }
 
+    // Assigns bait arm/far roles from configured marker ids on each player row.
     private void ApplyMarkerRoles()
     {
         foreach(var player in _players.Values)
@@ -554,6 +594,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         }
     }
 
+    // Overwrites roles from hello near/far status on live characters.
     private void ApplyNearFarRoles()
     {
         foreach(var (objectId, player) in _players.ToArray())
@@ -567,6 +608,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         }
     }
 
+    // Pairs the last two unassigned players into bait-near roles from markers or dual bait.
     private void ResolveRemainingNearRoles()
     {
         var remaining = _players.Values.Where(x => x.Role == Role.None).ToList();
@@ -598,6 +640,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         remaining[1].Role = Role.BaitNear;
     }
 
+    // Stand position for razor dodge using init angle, cw flag, and north/south group.
     private Vector3 GetRazorSafePosition(Role role)
     {
         var group = GetGroup(role);
@@ -607,6 +650,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         return CalculatePointFromCenterByDegree(ArenaCenter, 19f, angle);
     }
 
+    // Updates main (and optional sub) nav elements for hello spread from role config.
     private void UpdateSpreadNavigation(Role role)
     {
         DisableElement(NaviSubElement);
@@ -621,6 +665,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
             UpdateNavigation(NaviSubElement, CalculatePointFromCenterByDegree(ArenaCenter, GetSpreadSubRadius(role), subAngle.Value), true);
     }
 
+    // Computes final spread angles from init facing plus configured cw/ccw offsets.
     private bool TryGetSpreadAngles(Role role, out float angle, out float? subAngle)
     {
         if(!TryGetSpreadOffsets(role, out var primaryOffset, out var secondaryOffset))
@@ -635,6 +680,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         return true;
     }
 
+    // Primary (and optional secondary) degree offset from config for a resolved role.
     private bool TryGetSpreadOffsets(Role role, out float primaryOffset, out float? secondaryOffset)
     {
         secondaryOffset = null;
@@ -674,9 +720,11 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         }
     }
 
+    // Picks cw vs ccw configured angle based on current rotation sense flag.
     private float SpreadOffsetByDirection(float clockwiseDegrees, float counterClockwiseDegrees)
         => _isClockwise ? ClampSpreadConfigDegrees(clockwiseDegrees) : ClampSpreadConfigDegrees(counterClockwiseDegrees);
 
+    // North/south spread group from config for a role.
     private Group GetGroup(Role role)
         => role switch
         {
@@ -692,6 +740,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
             _ => Group.South
         };
 
+    // World XZ from arena center, radius, and compass angle in degrees.
     private static Vector3 CalculatePointFromCenterByDegree(Vector3 center, float radius, float degree)
     {
         var rad = degree.DegToRad();
@@ -702,9 +751,11 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         );
     }
 
+    // First battle NPC on the object table matching data id.
     private IBattleNpc? FindNpcByDataId(uint dataId)
         => Svc.Objects.OfType<IBattleNpc>().FirstOrDefault(x => x.DataId == dataId);
 
+    // Enables a nav element at position with rainbow tint and optional tether.
     private void UpdateNavigation(string elementName, Vector3 position, bool tether)
     {
         if(!Controller.TryGetElementByName(elementName, out var element)) return;
@@ -714,9 +765,11 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         element.Enabled = true;
     }
 
+    // True when P1 looks like a real raid marker id (not unset/none).
     private static bool HasRaidMarkerP1(uint p1)
         => p1 != MarkerP1Unset && Enum.IsDefined(typeof(MarkerType), p1) && p1 != (uint)MarkerType.None;
 
+    // Configured spread radius for the role (hello, bait, dual near).
     private float GetSpreadRadius(Role role)
         => role switch
         {
@@ -732,30 +785,36 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
             _ => DefaultOtherSpreadRadius
         };
 
+    // Secondary nav radius for dual bait-near (second stack); else same as primary.
     private float GetSpreadSubRadius(Role role)
         => role == Role.BaitNear ? ClampSpreadRadius(C.RadiusBaitNear2) : GetSpreadRadius(role);
 
+    // Hides both registered nav elements.
     private void DisableNavigationElements()
     {
         DisableElement(NaviElement);
         DisableElement(NaviSubElement);
     }
 
+    // Turns off a registered element by name if it exists.
     private void DisableElement(string elementName)
     {
         if(Controller.TryGetElementByName(elementName, out var element))
             element.Enabled = false;
     }
 
+    // Compass degrees from arena center to a world position (north-based).
     private static float GetRelativeAngleFromArenaCenter(Vector3 position)
         => MathHelper.GetRelativeAngle(ArenaCenter, position);
 
+    // Wraps degrees into [0, 360).
     private static float NormalizeDegrees(float degrees)
     {
         var n = degrees % 360f;
         return n < 0f ? n + 360f : n;
     }
 
+    // Full-saturation RGBA that cycles hue over wall-clock time.
     private Vector4 GetRainbowColor(double cycleSeconds)
     {
         if(cycleSeconds <= 0d) cycleSeconds = 1d;
@@ -764,6 +823,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         return HsvToVector4(hue, 1f, 1f);
     }
 
+    // Converts HSV in [0,1] to linear RGB with alpha 1.
     private static Vector4 HsvToVector4(double h, double s, double v)
     {
         double r = 0d;
@@ -787,4 +847,5 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
         return new Vector4((float)r, (float)g, (float)b, 1f);
     }
+    #endregion
 }

@@ -19,18 +19,36 @@ namespace SplatoonScriptsOfficial.Duties.Dawntrail;
 
 public unsafe class EX3_Coronation : SplatoonScript
 {
-    public override Metadata Metadata { get; } = new(1, "mirage");
-    public override HashSet<uint>? ValidTerritories => [1243];
+    #region Metadata
+    public override Metadata Metadata { get; } = new(2, "mirage");
+    public override HashSet<uint>? ValidTerritories => [TerritoryEx3];
+    #endregion
 
+    #region Constant
+    private const uint TerritoryEx3 = 1243;
     private const uint CoronationBitDataId = 18043;
     private const double RainbowHueCycleSeconds = 4d;
     private const float ElementOffset = 1f;
+    private const int RequiredVisibleBitCount = 4;
+    private const int ArenaEdgeNorthZ = 80;
+    private const int ArenaEdgeSouthZ = 120;
+    private const int ArenaEdgeEastX = 120;
+    private const int ArenaEdgeWestX = 80;
+    #endregion
 
+    #region Config
+    public sealed class Config : IEzConfig
+    {
+        public bool BasisIsNorth = true;
+    }
+    #endregion
+
+    #region State
     private BitDirection _bitDirection = BitDirection.None;
     private BitSide _bitSide = BitSide.None;
+    #endregion
 
-    public Config C => Controller.GetConfig<Config>();
-
+    #region Private Class
     public enum BitDirection
     {
         None,
@@ -58,6 +76,9 @@ public unsafe class EX3_Coronation : SplatoonScript
         West,
         NorthWest,
     }
+    #endregion
+
+    public Config C => Controller.GetConfig<Config>();
 
     public static Vector3 SpreadPositionFromDirection(FieldDirection dir)
         => dir switch
@@ -85,7 +106,7 @@ public unsafe class EX3_Coronation : SplatoonScript
             (BitDirection.West, BitSide.Left) => SpreadPositionFromDirection(C.BasisIsNorth ? FieldDirection.NorthWest : FieldDirection.West),
         };
 
-
+    #region LifeCycle
     public override void OnSetup()
     {
         Controller.RegisterElementFromCode("navigation_spread",
@@ -93,25 +114,11 @@ public unsafe class EX3_Coronation : SplatoonScript
             overwrite: true);
     }
 
-    public override void OnSettingsDraw()
-    {
-        ImGui.Text("Spread Basis");
-        ImGui.RadioButton("North (e.g. If North Bit tethered you then spread to N or NE.)", ref C.BasisIsNorth, true);
-        ImGui.RadioButton("NorthWest (e.g. If North Bit tethered you then spread to NW or N.)", ref C.BasisIsNorth, false);
-
-        ImGui.Separator();
-
-        var bitCount = CountVisibleCoronationBits();
-        ImGui.Text($"Bit Count: {bitCount} (required: 4)");
-        ImGui.Text($"Bit Direction: {_bitDirection} (required: North, East, South, West)");
-        ImGui.Text($"Bit Side: {_bitSide} (required: Right, Left)");
-    }
-
     public override void OnUpdate()
     {
         if(!Controller.TryGetElementByName("navigation_spread", out var nav)) return;
 
-        if(CountVisibleCoronationBits() != 4)
+        if(CountVisibleCoronationBits() != RequiredVisibleBitCount)
         {
             nav.Enabled = false;
             return;
@@ -138,9 +145,27 @@ public unsafe class EX3_Coronation : SplatoonScript
         if(Controller.TryGetElementByName("navigation_spread", out var nav)) nav.Enabled = false;
     }
 
+    public override void OnSettingsDraw()
+    {
+        ImGui.Text("Spread Basis");
+        ImGui.RadioButton("North (e.g. If North Bit tethered you then spread to N or NE.)", ref C.BasisIsNorth, true);
+        ImGui.RadioButton("NorthWest (e.g. If North Bit tethered you then spread to NW or N.)", ref C.BasisIsNorth, false);
+
+        ImGui.Separator();
+
+        var bitCount = CountVisibleCoronationBits();
+        ImGui.Text($"Bit Count: {bitCount} (required: {RequiredVisibleBitCount})");
+        ImGui.Text($"Bit Direction: {_bitDirection} (required: North, East, South, West)");
+        ImGui.Text($"Bit Side: {_bitSide} (required: Right, Left)");
+    }
+    #endregion
+
+    #region Private Method
+    // Counts visible coronation bit battle NPCs on the field.
     private static int CountVisibleCoronationBits()
         => Svc.Objects.OfType<IBattleNpc>().Count(x => x.DataId == CoronationBitDataId && x.IsCharacterVisible());
 
+    // Resolves tether target from raw id via ECommons helper or object table.
     private static IGameObject? ResolveTetherTarget(uint raw)
     {
         var byEntity = raw.GetObject();
@@ -148,6 +173,7 @@ public unsafe class EX3_Coronation : SplatoonScript
         return Svc.Objects.FirstOrDefault(x => x.GameObjectId == raw);
     }
 
+    // Reads tethered bit cardinal from tether target world position.
     private BitDirection InferDirectionFromTethers(IPlayerCharacter me)
     {
         if(!AttachedInfo.TetherInfos.TryGetValue(me.Address, out var list) || list.Count == 0)
@@ -160,15 +186,16 @@ public unsafe class EX3_Coronation : SplatoonScript
 
             var z = FloatToInt(targetObj.Position.Z);
             var x = FloatToInt(targetObj.Position.X);
-            if(z == 80) return BitDirection.North;
-            if(x == 120) return BitDirection.East;
-            if(z == 120) return BitDirection.South;
-            if(x == 80) return BitDirection.West;
+            if(z == ArenaEdgeNorthZ) return BitDirection.North;
+            if(x == ArenaEdgeEastX) return BitDirection.East;
+            if(z == ArenaEdgeSouthZ) return BitDirection.South;
+            if(x == ArenaEdgeWestX) return BitDirection.West;
         }
 
         return BitDirection.None;
     }
 
+    // Left/right track VFX on the player for coronation spread side.
     private static BitSide InferSideFromPlayerVfx(IPlayerCharacter me)
     {
         if(!me.TryGetVfx(out var fx) || fx == null) return BitSide.None;
@@ -185,8 +212,10 @@ public unsafe class EX3_Coronation : SplatoonScript
         return BitSide.None;
     }
 
+    // Rounds a float world coordinate to int grid for arena edge checks.
     private static int FloatToInt(float value) => (int)Math.Round(value);
 
+    // Animated highlight color from wall-clock time.
     private Vector4 GetRainbowColor(double cycleSeconds)
     {
         if(cycleSeconds <= 0d) cycleSeconds = 1d;
@@ -195,6 +224,7 @@ public unsafe class EX3_Coronation : SplatoonScript
         return HsvToVector4(hue, 1d, 1d);
     }
 
+    // HSV (0–1) to opaque RGBA for element tint.
     private static Vector4 HsvToVector4(double h, double s, double v)
     {
         double r = 0d, g = 0d, b = 0d;
@@ -216,8 +246,5 @@ public unsafe class EX3_Coronation : SplatoonScript
 
         return new Vector4((float)r, (float)g, (float)b, 1f);
     }
-
-    public sealed class Config : IEzConfig {
-        public bool BasisIsNorth = true;
-    }
+    #endregion
 }

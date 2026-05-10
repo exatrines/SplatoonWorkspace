@@ -22,35 +22,25 @@ namespace SplatoonScriptsOfficial.Duties.Endwalker.The_Omega_Protocol;
 
 public class P3_Transition : SplatoonScript
 {
-    #region Constants
+    #region Metadata
+    public override Metadata? Metadata => new(1, "mirage");
+    public override HashSet<uint>? ValidTerritories => [TerritoryTop];
+    #endregion
 
-    /*
-     * テリトリーID
-     * - 絶オメガ検証戦
-     */
+    #region Constant
+
+    // TOP (The Omega Protocol) territory id.
     private const uint TerritoryTop = 1122;
 
-    /*
-     * ステータスID
-     * - 狙撃式高出力波動砲: 3426
-     * - 狙撃式波動砲: 3425
-     */
+    // Sniper debuffs: high-power cannon / wave cannon.
     private const uint StatusSniperCannon = 3426;
     private const uint StatusSniperWave = 3425;
-    
-    /*
-     * キャストID
-     * - 連射式波動砲: 31567
-     * - 速射式波動砲: 31568, 31569, 31570
-     */
+
+    // Transition start: rapid burst; waves: incremental casts.
     private const uint StartTransitionCastId = 31567;
     private static readonly uint[] WaveIncrementCastIds = [31568, 31569, 31570];
 
-    /*
-     * データID
-     * - レフトアーム: 0x3D66
-     * - ライトアーム: 0x3D67
-     */
+    // Triangle marker arms (left/right).
     private const uint DataIdTriangleMarkerA = 0x3D66;
     private const uint DataIdTriangleMarkerB = 0x3D67;
     private const int MarkerCountForTriangleReverse = 3;
@@ -85,6 +75,10 @@ public class P3_Transition : SplatoonScript
 
     #endregion
 
+    #region Config
+    private Config C => Controller.GetConfig<Config>();
+    #endregion
+
     #region State
 
     private int _waveStage = WaveStageIdle;
@@ -98,14 +92,10 @@ public class P3_Transition : SplatoonScript
 
     #endregion
 
-    public override HashSet<uint>? ValidTerritories => [TerritoryTop];
-    public override Metadata? Metadata => new(1, "mirage");
-
-    private Config C => Controller.GetConfig<Config>();
-
+    // True when scene id is P3 transition (3 or 4).
     private static bool IsP3TransitionScene(int scene) => scene is 3 or 4;
 
-    #region SplatoonScript lifecycle
+    #region LifeCycle
 
     public override void OnSetup()
     {
@@ -113,6 +103,7 @@ public class P3_Transition : SplatoonScript
         DisableAllWaveOverlayElements();
     }
 
+    // Registers wave overlay elements from preset JSON (values stay literal in JSON).
     private void RegisterWaveOverlayElements()
     {
         Controller.RegisterElementFromCode(ElUnDetermined,
@@ -129,6 +120,27 @@ public class P3_Transition : SplatoonScript
             """{"Name":"Right_Determined_Inside","Enabled":false,"type":1,"offX":-3.0,"offY":-16.5,"radius":0.8,"thicc":10.0,"fillIntensity":0.5,"refActorDataID":15717,"refActorComparisonType":3,"includeRotation":true,"AdditionalRotation":0.0,"tether":true}""");
         Controller.RegisterElementFromCode(ElRightAvoid,
             """{"Name":"Right_Determined_Avoid","Enabled":false,"type":1,"offX":4.5,"offY":-16.0,"radius":0.8,"thicc":10.0,"fillIntensity":0.5,"refActorDataID":15717,"refActorComparisonType":3,"includeRotation":true,"AdditionalRotation":0.0,"tether":true}""");
+    }
+
+    public override void OnUpdate()
+    {
+        if(!IsP3TransitionScene(Controller.Scene))
+        {
+            if(_waveStage != WaveStageIdle) EndTransitionPhase();
+            return;
+        }
+
+        UpdateDebugMyGroup();
+        UpdateTransitionPatternMarkers();
+        ApplyGuideVisibility();
+    }
+
+    public override void OnReset()
+    {
+        _waveStage = WaveStageIdle;
+        _debugMyGroup = null;
+        ResetTransitionPatternState();
+        DisableAllWaveOverlayElements();
     }
 
     public override void OnStartingCast(uint source, uint castId)
@@ -157,6 +169,7 @@ public class P3_Transition : SplatoonScript
         if(_waveStage == MaxWaveStage) EndTransitionPhase();
     }
 
+    // Clears overlays and idle wave state when the transition sequence ends.
     private void EndTransitionPhase()
     {
         DisableAllWaveOverlayElements();
@@ -164,6 +177,7 @@ public class P3_Transition : SplatoonScript
         ResetTransitionPatternState();
     }
 
+    // Starts counting waves when the transition opener cast begins.
     private void BeginTransitionFromCast()
     {
         if(!IsP3TransitionScene(Controller.Scene)) return;
@@ -172,29 +186,6 @@ public class P3_Transition : SplatoonScript
         _waveStage = 0;
         ResetTransitionPatternState();
     }
-
-    public override void OnUpdate()
-    {
-        if(!IsP3TransitionScene(Controller.Scene))
-        {
-            if(_waveStage != WaveStageIdle) EndTransitionPhase();
-            return;
-        }
-
-        UpdateDebugMyGroup();
-        UpdateTransitionPatternMarkers();
-        ApplyGuideVisibility();
-    }
-
-    public override void OnReset()
-    {
-        _waveStage = WaveStageIdle;
-        _debugMyGroup = null;
-        ResetTransitionPatternState();
-        DisableAllWaveOverlayElements();
-    }
-
-    #endregion
 
     public override void OnSettingsDraw()
     {
@@ -220,8 +211,11 @@ public class P3_Transition : SplatoonScript
         }
     }
 
-    #region Settings UI
+    #endregion
 
+    #region Private Method
+
+    // ImGui combo to pick arena direction for one group assignment slot.
     private void DrawDirectionSelector(string label, GroupAssignment group)
     {
         var currentDirectionSpot = C.GroupDirection[group];
@@ -242,10 +236,7 @@ public class P3_Transition : SplatoonScript
         }
     }
 
-    #endregion
-
-    #region Phase and marker logic
-
+    // Maps wave stage and marker pattern to a coarse UI phase label.
     private TransitionPhaseState GetTransitionPhaseState()
     {
         if(_waveStage == WaveStageIdle) return TransitionPhaseState.NotTransition;
@@ -268,6 +259,7 @@ public class P3_Transition : SplatoonScript
         return TransitionPhaseState.UnDeterminedGuide;
     }
 
+    // Tracks triangle markers on field to decide triangle vs reverse pattern.
     private void UpdateTransitionPatternMarkers()
     {
         if(_waveStage == WaveStageIdle || _markerDeterminationEnded) return;
@@ -292,12 +284,14 @@ public class P3_Transition : SplatoonScript
         }
     }
 
+    // True when a marker sits on the fixed triangle anchor near north edge.
     private static bool IsAtTriangleAnchorPosition(IGameObject obj)
     {
         var position = obj.Position;
         return MathF.Abs(position.X - MarkerAnchorX) < MarkerPositionEpsilon && MathF.Abs(position.Z - MarkerAnchorZ) < MarkerPositionEpsilon;
     }
 
+    // Filters objects that count as transition triangle markers.
     private static bool IsTransitionMarkerEligible(IGameObject obj)
     {
         if(obj.EntityId == 0) return false;
@@ -305,6 +299,7 @@ public class P3_Transition : SplatoonScript
         return obj is ICharacter character && character.IsCharacterVisible();
     }
 
+    // Clears marker snapshot flags when leaving transition logic.
     private void ResetTransitionPatternState()
     {
         _transitionPatternType = TransitionPatternType.Unknown;
@@ -313,10 +308,7 @@ public class P3_Transition : SplatoonScript
         _lastMarkerObjectCount = 0;
     }
 
-    #endregion
-
-    #region Party role resolution
-
+    // Nearest living PCs to local player for role resolution (up to 8).
     private List<IPlayerCharacter> GetPartyMembers()
     {
         var partyMembersSortedByDistance = Svc.Objects
@@ -329,6 +321,7 @@ public class P3_Transition : SplatoonScript
         return partyMembersSortedByDistance;
     }
 
+    // Resolves which stack/spread slot the configured player occupies from debuffs.
     private bool TryResolveCurrentAssignment(out GroupAssignment? assignment)
     {
         assignment = null;
@@ -342,6 +335,7 @@ public class P3_Transition : SplatoonScript
         return true;
     }
 
+    // Maps local player entity id to group using sniper debuff ordering rules.
     private GroupAssignment? ResolveGroupAssignment(uint localPlayerEntityId, IReadOnlyList<IPlayerCharacter> partyMembers)
     {
         var sniperCannonOrdered = OrderByPriority(partyMembers.Where(x => HasStatus(x, StatusSniperCannon))).ToList();
@@ -360,16 +354,20 @@ public class P3_Transition : SplatoonScript
         return null;
     }
 
+    // Refreshes debug-only cached group for the operating player.
     private void UpdateDebugMyGroup()
     {
         _debugMyGroup = TryResolveCurrentAssignment(out var assignment) ? assignment : null;
     }
 
+    // Player this script uses for assignment (BasePlayer / playback override).
     private IPlayerCharacter? GetProcessingPlayer() => BasePlayer;
 
+    // Orders players by script priority list then entity id.
     private IEnumerable<IPlayerCharacter> OrderByPriority(IEnumerable<IPlayerCharacter> players)
         => players.OrderBy(GetPriorityIndex).ThenBy(x => x.EntityId);
 
+    // Zero-based index in priority config, or max when unknown.
     private int GetPriorityIndex(IPlayerCharacter player)
     {
         var priorityList = C.PriorityData.GetPlayers(_ => true)?.ToList();
@@ -384,19 +382,18 @@ public class P3_Transition : SplatoonScript
         return int.MaxValue;
     }
 
+    // True if the player currently has the given status id.
     private static bool HasStatus(IPlayerCharacter player, uint statusId)
         => player.StatusList.Any(x => x.StatusId == statusId);
 
-    #endregion
-
-    #region Wave overlay
-
+    // Each frame: refresh overlay when in waves, otherwise hide all.
     private void ApplyGuideVisibility()
     {
         if(_waveStage != WaveStageIdle) UpdateWaveOverlayVisibility();
         else DisableAllWaveOverlayElements();
     }
 
+    // Disables every registered wave overlay element.
     private void DisableAllWaveOverlayElements()
     {
         foreach(var elementName in AllWaveOverlayElementNames)
@@ -409,6 +406,7 @@ public class P3_Transition : SplatoonScript
         }
     }
 
+    // Chooses which overlay to show from wave index and resolved group direction.
     private void UpdateWaveOverlayVisibility()
     {
         if(_waveStage == WaveStageIdle) return;
@@ -455,6 +453,7 @@ public class P3_Transition : SplatoonScript
         }
     }
 
+    // Turns on left/right outside/inside/avoid overlay for current pattern and facing.
     private void EnableDeterminedSideGuide(DeterminedSideGuideKind guideKind, float additionalRotationRadians, DirectionSpot directionSpot)
     {
         var displaySide = ResolveDisplaySide(directionSpot, _transitionPatternType);
@@ -474,6 +473,7 @@ public class P3_Transition : SplatoonScript
         SetNonWaveOverlayElement(elementName, additionalRotationRadians);
     }
 
+    // Extra rotation (radians) applied to tether overlay for a compass slot.
     private static float DirectionSpotToAdditionalRotation(DirectionSpot spot)
         => spot switch
         {
@@ -486,8 +486,10 @@ public class P3_Transition : SplatoonScript
             _ => 0f,
         };
 
+    // Converts degrees to radians for element rotation fields.
     private static float DegreesToRadians(float deg) => deg * (MathF.PI / 180f);
 
+    // Enables a named overlay element with tether, tint, and optional rotation.
     private void SetNonWaveOverlayElement(string elementName, float? additionalRotationRadians)
     {
         if(!Controller.TryGetElementByName(elementName, out var element)) return;
@@ -500,6 +502,7 @@ public class P3_Transition : SplatoonScript
         }
     }
 
+    // Full-saturation hue cycle for highlight tint on overlays.
     private Vector4 GetRainbowColor(double cycleSeconds)
     {
         if(cycleSeconds <= 0d)
@@ -513,6 +516,7 @@ public class P3_Transition : SplatoonScript
         return HsvToVector4(hue, 1f, 1f);
     }
 
+    // HSV in 0–1 space to RGBA for ImGui tint conversion.
     private static Vector4 HsvToVector4(double h, double s, double v)
     {
         double r = 0f, g = 0f, b = 0f;
@@ -535,6 +539,7 @@ public class P3_Transition : SplatoonScript
         return new Vector4((float)r, (float)g, (float)b, 1f);
     }
 
+    // Maps compass slot and triangle/reverse pattern to left vs right overlay set.
     private static DisplaySide ResolveDisplaySide(DirectionSpot spot, TransitionPatternType patternType)
     {
         if(patternType == TransitionPatternType.Reverse)
@@ -565,7 +570,7 @@ public class P3_Transition : SplatoonScript
 
     #endregion
 
-    #region Types and configuration
+    #region Private Class
 
     private enum DeterminedSideGuideKind
     {
@@ -619,6 +624,10 @@ public class P3_Transition : SplatoonScript
         Wave5,
         Wave6,
     }
+
+    #endregion
+
+    #region Config
 
     private class Config : IEzConfig
     {

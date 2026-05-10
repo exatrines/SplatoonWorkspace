@@ -15,14 +15,16 @@ using System.Numerics;
 using static Splatoon.Splatoon;
 
 namespace SplatoonScriptsOfficial.Duties.Endwalker.The_Omega_Protocol;
+
 public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
 {
     #region Metadata
     public override Metadata Metadata { get; } = new(1, "mirage");
-    public override HashSet<uint>? ValidTerritories => [1122];
+    public override HashSet<uint>? ValidTerritories => [TerritoryTop];
     #endregion
 
-    #region Constants
+    #region Constant
+    private const uint TerritoryTop = 1122;
     public const uint SceneId = 6;
 
     private const uint CastCodeDynamisSigma = 32788;
@@ -43,6 +45,12 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
     public const float PlayerRotateAngle = 22.5f;
     private const float AngleSnapStep = 22.5f;
     private static readonly Vector3 ArenaCenter = new(100f, 0f, 100f);
+
+    private const double RainbowHueCycleSeconds = 4d;
+    #endregion
+
+    #region Config
+    // No IEZConfig in this script.
     #endregion
 
     #region State
@@ -55,25 +63,13 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
     private ObjectInfo? _selectedTowerInfo = null;
     #endregion
 
-    #region Structures
+    #region Private Class
     private readonly record struct ObjectInfo(IGameObject Object, float Angle);
     #endregion
 
-    #region Public Methods
+    #region LifeCycle
     public override void OnSetup()
         => Controller.RegisterElementFromCode("navigation", """{"Name":"navigation","Enabled":false,"radius":3.0,"thicc":6.0,"fillIntensity":0.1,"tether":true}""", overwrite: true);
-
-    public override void OnReset()
-    {
-        _isSigma = false;
-        _currentGlitchStatus = 0;
-        _localPlayerAngle = PlayerRotateAngle;
-        _allPlayerInfos = [];
-        _allTowerInfos = [];
-        _candidateTowerInfos = [];
-        _selectedTowerInfo = null;
-        DisableElement("navigation");
-    }
 
     public override void OnUpdate()
     {
@@ -128,7 +124,19 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
 
         UpdateNavigationElement(_selectedTowerInfo);
     }
-    
+
+    public override void OnReset()
+    {
+        _isSigma = false;
+        _currentGlitchStatus = 0;
+        _localPlayerAngle = PlayerRotateAngle;
+        _allPlayerInfos = [];
+        _allTowerInfos = [];
+        _candidateTowerInfos = [];
+        _selectedTowerInfo = null;
+        DisableElement("navigation");
+    }
+
     public override void OnActionEffectEvent(ActionEffectSet set)
     {
         if(!IsPhaseFive()) return;
@@ -160,6 +168,7 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
         ImGui.Text($"Warning: This script not supports Playstation Alignment and Wave Cannon Spread.");
 
         ImGui.Separator();
+        ImGui.Text($"BasePlayer: {BasePlayer?.Name.ToString() ?? "null"}");
         ImGui.Text($"Scene: {Controller.Scene}");
         ImGui.Text($"Is Sigma: {_isSigma}");
         ImGui.Text($"Glitch Status: {FormatGlitchStatus(_currentGlitchStatus)}");
@@ -172,14 +181,17 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
     }
     #endregion
 
-    #region Private Methods
+    #region Private Method
+    // True when scene id is P5 Dynamis.
     private bool IsPhaseFive()
         => Controller.Scene == SceneId;
 
+    // Checks tower count matches glitch debuff (far vs middle).
     private static bool IsExpectedTowerCount(uint glitchStatus, int towerCount)
         => (glitchStatus == GlitchFar && towerCount == TowerCountGlitchFar)
            || (glitchStatus == GlitchMiddle && towerCount == TowerCountGlitchMiddle);
 
+    // Finds this player in the cached wave-cannon angle list.
     private bool TryGetLocalPlayerInfo(out ObjectInfo localPlayerInfo)
     {
         localPlayerInfo = default;
@@ -196,6 +208,7 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
         return false;
     }
 
+    // True if angle lies on the shorter arc between min and max (handles wrap).
     private static bool IsAngleInRange(float angle, float minAngle, float maxAngle)
     {
         if(minAngle <= maxAngle)
@@ -203,12 +216,14 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
         return minAngle <= angle || angle <= maxAngle;
     }
 
+    // Normalizes to [0,360) and snaps to 22.5° steps.
     private static float NormalizeAngle(float angle)
     {
         var normalized = (angle + 360f) % 360f;
         return (float)(Math.Round(normalized / AngleSnapStep) * AngleSnapStep);
     }
 
+    // Towers on field with compass angle from arena center.
     private List<ObjectInfo> GetTowerInfos()
         => Svc.Objects
             .Where(x => x.DataId.EqualsAny(TowerSingle, TowerDual))
@@ -216,6 +231,7 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
             .OrderBy(x => x.Angle)
             .ToList();
 
+    // Party PCs with wave-spread facing angle (player rotate offset applied).
     private List<ObjectInfo> GetPlayerInfos()
         => Svc.Objects.OfType<IPlayerCharacter>()
             .Select(x => new ObjectInfo(x, NormalizeAngle(GetRelativeAngleFromArenaCenter(x.Position) + PlayerRotateAngle)))
@@ -223,20 +239,22 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
             .Distinct()
             .ToList();
 
+    // Glitch far/middle status id on BasePlayer, or 0.
     private uint GetCurrentGlitchStatus()
         => BasePlayer?.StatusList.FirstOrDefault(x => x.StatusId == GlitchFar || x.StatusId == GlitchMiddle)?.StatusId ?? 0;
 
+    // Compass degrees from arena center toward position.
     private static float GetRelativeAngleFromArenaCenter(Vector3 position)
         => MathHelper.GetRelativeAngle(ArenaCenter, position);
-    #endregion
 
-    #region Rendering Helpers
+    // Hides element when missing.
     private void DisableElement(string name)
     {
         if(Controller.TryGetElementByName(name, out var element))
             element.Enabled = false;
     }
 
+    // Points navigation tether at chosen tower with rainbow color.
     private void UpdateNavigationElement(ObjectInfo? targetTowerInfo)
     {
         if(!Controller.TryGetElementByName("navigation", out var element))
@@ -249,16 +267,19 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
         }
 
         element.SetRefPosition(targetTowerInfo.Value.Object.Position);
-        element.color = ImGui.ColorConvertFloat4ToU32(GetRainbowColor(4d));
+        element.color = ImGui.ColorConvertFloat4ToU32(GetRainbowColor(RainbowHueCycleSeconds));
         element.Enabled = true;
     }
 
+    // Short glitch label for debug UI.
     private static string FormatGlitchStatus(uint glitchStatus)
         => glitchStatus == GlitchFar ? "Far" : glitchStatus == GlitchMiddle ? "Middle" : "None";
 
+    // One-line list of tower angles and single/dual type.
     private static string FormatObjectInfoList(List<ObjectInfo> infos)
         => $"[{string.Join(", ", infos.Select(x => $"{x.Angle} ({(x.Object.DataId == TowerSingle ? "Single" : "Dual")})"))}]";
 
+    // Full-saturation hue cycle for highlight color.
     private Vector4 GetRainbowColor(double cycleSeconds)
     {
         if(cycleSeconds <= 0d) cycleSeconds = 1d;
@@ -267,6 +288,7 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
         return HsvToVector4(hue, 1f, 1f);
     }
 
+    // HSV in 0–1 to opaque RGBA for ImGui.
     private static Vector4 HsvToVector4(double h, double s, double v)
     {
         double r = 0d;
@@ -292,4 +314,3 @@ public unsafe class P5_Dynamis_Sigma_Relative_Tower_Finder : SplatoonScript
     }
     #endregion
 }
-

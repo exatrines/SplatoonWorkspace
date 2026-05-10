@@ -50,9 +50,105 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
     private const float DefaultOtherSpreadRadius = 19f;
     private const uint MarkerP1Unset = uint.MaxValue;
 
+    // Marker presets for settings / debug combos (Attack1–4, Bind1–2, Stop1–2).
+    private static readonly MarkerType[] MarkerPresetOrder =
+    [
+        MarkerType.Attack1,
+        MarkerType.Attack2,
+        MarkerType.Attack3,
+        MarkerType.Attack4,
+        MarkerType.Bind1,
+        MarkerType.Bind2,
+        MarkerType.Stop1,
+        MarkerType.Stop2
+    ];
+
+    private static readonly string[] MarkerPresetComboLabels =
+    [
+        "Attack1",
+        "Attack2",
+        "Attack3",
+        "Attack4",
+        "Bind1",
+        "Bind2",
+        "Stop1",
+        "Stop2"
+    ];
+
+    private static readonly string[] DebugMarkerComboLabelsWithUnset =
+    [
+        "(unset)",
+        "Attack1",
+        "Attack2",
+        "Attack3",
+        "Attack4",
+        "Bind1",
+        "Bind2",
+        "Stop1",
+        "Stop2"
+    ];
+
+    #endregion
+
+    #region Config
+
+    public sealed class Config : IEzConfig
+    {
+        public MarkerType BaitArm1Marker = MarkerType.Attack1;
+        public MarkerType BaitArm2Marker = MarkerType.Attack2;
+        public MarkerType BaitFar1Marker = MarkerType.Attack3;
+        public MarkerType BaitFar2Marker = MarkerType.Attack4;
+
+        public float DegSpreadHelloNear = 180f;
+        public float DegSpreadHelloNearCcw = 180f;
+        public float DegSpreadHelloFar = 270f;
+        public float DegSpreadHelloFarCcw = 90f;
+        public float RadiusHelloNear = DefaultHelloSpreadRadius;
+        public float RadiusHelloFar = DefaultHelloSpreadRadius;
+
+        public Group SpreadGroupHelloNear = Group.South;
+        public Group SpreadGroupHelloFar = Group.South;
+        public Group SpreadGroupBaitArm1 = Group.North;
+        public Group SpreadGroupBaitArm2 = Group.North;
+        public Group SpreadGroupBaitFar1 = Group.North;
+        public Group SpreadGroupBaitFar2 = Group.South;
+        public Group SpreadGroupBaitNear1 = Group.South;
+        public Group SpreadGroupBaitNear2 = Group.South;
+
+        public float DegSpreadBaitArm1 = 317.5f;
+        public float DegSpreadBaitArm1Ccw = 317.5f;
+        public float DegSpreadBaitArm2 = 42.5f;
+        public float DegSpreadBaitArm2Ccw = 42.5f;
+        public float RadiusBaitArm1 = DefaultOtherSpreadRadius;
+        public float RadiusBaitArm2 = DefaultOtherSpreadRadius;
+        public float DegSpreadBaitFar1 = 90f;
+        public float DegSpreadBaitFar1Ccw = 270f;
+        public float DegSpreadBaitFar2 = 270f;
+        public float DegSpreadBaitFar2Ccw = 90f;
+        public float RadiusBaitFar1 = DefaultOtherSpreadRadius;
+        public float RadiusBaitFar2 = DefaultOtherSpreadRadius;
+
+        public float DegSpreadBaitNear1 = 192.5f;
+        public float DegSpreadBaitNear1Ccw = 192.5f;
+        public float DegSpreadBaitNear2 = 167.5f;
+        public float DegSpreadBaitNear2Ccw = 167.5f;
+        public float RadiusBaitNear1 = DefaultOtherSpreadRadius;
+        public float RadiusBaitNear2 = DefaultOtherSpreadRadius;
+    }
+
+    private Config C => Controller.GetConfig<Config>();
+
+    #endregion
+
+    #region State
+    private readonly Dictionary<ulong, PlayerData> _players = [];
+    private State _state = State.Wait;
+    private bool _isClockwise;
+    private float _initAngle;
     #endregion
 
     #region Private Class
+
     private enum State
     {
         Wait,
@@ -71,7 +167,6 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         BaitFar2,
         BaitNear1,
         BaitNear2,
-        BaitNear,
         HelloNear,
         HelloFar
     }
@@ -115,66 +210,6 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
     #endregion
 
-    #region Config
-
-    public sealed class Config : IEzConfig
-    {
-        public MarkerType BaitArm1Marker = MarkerType.Attack1;
-        public MarkerType BaitArm2Marker = MarkerType.Attack2;
-        public MarkerType BaitFar1Marker = MarkerType.Attack3;
-        public MarkerType BaitFar2Marker = MarkerType.Attack4;
-        public MarkerType BaitNear1Marker = MarkerType.None;
-        public MarkerType BaitNear2Marker = MarkerType.Attack4;
-
-        public float DegSpreadHelloNear = 180f;
-        public float DegSpreadHelloNearCcw = 180f;
-        public float DegSpreadHelloFar = 270f;
-        public float DegSpreadHelloFarCcw = 90f;
-        public float RadiusHelloNear = DefaultHelloSpreadRadius;
-        public float RadiusHelloFar = DefaultHelloSpreadRadius;
-
-        public Group SpreadGroupHelloNear = Group.South;
-        public Group SpreadGroupHelloFar = Group.South;
-        public Group SpreadGroupBaitArm1 = Group.North;
-        public Group SpreadGroupBaitArm2 = Group.North;
-        public Group SpreadGroupBaitFar1 = Group.North;
-        public Group SpreadGroupBaitFar2 = Group.South;
-        public Group SpreadGroupBaitNear1 = Group.South;
-        public Group SpreadGroupBaitNear2 = Group.South;
-        public Group SpreadGroupBaitNearDual = Group.South;
-
-        public float DegSpreadBaitArm1 = 317.5f;
-        public float DegSpreadBaitArm1Ccw = 317.5f;
-        public float DegSpreadBaitArm2 = 42.5f;
-        public float DegSpreadBaitArm2Ccw = 42.5f;
-        public float RadiusBaitArm1 = DefaultOtherSpreadRadius;
-        public float RadiusBaitArm2 = DefaultOtherSpreadRadius;
-        public float DegSpreadBaitFar1 = 90f;
-        public float DegSpreadBaitFar1Ccw = 270f;
-        public float DegSpreadBaitFar2 = 270f;
-        public float DegSpreadBaitFar2Ccw = 90f;
-        public float RadiusBaitFar1 = DefaultOtherSpreadRadius;
-        public float RadiusBaitFar2 = DefaultOtherSpreadRadius;
-
-        public float DegSpreadBaitNear1 = 192.5f;
-        public float DegSpreadBaitNear1Ccw = 192.5f;
-        public float DegSpreadBaitNear2 = 167.5f;
-        public float DegSpreadBaitNear2Ccw = 167.5f;
-        public float RadiusBaitNear1 = DefaultOtherSpreadRadius;
-        public float RadiusBaitNear2 = DefaultOtherSpreadRadius;
-        public float RadiusBaitNearDual = DefaultOtherSpreadRadius;
-    }
-
-    #endregion
-
-    #region State
-    private Config C => Controller.GetConfig<Config>();
-    private readonly Dictionary<ulong, PlayerData> _players = [];
-    private State _state = State.Wait;
-    private bool _isClockwise;
-    private float _initAngle;
-    #endregion
-
     #region LifeCycle
     public override void OnSetup()
     {
@@ -184,26 +219,18 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
     public override void OnUpdate()
     {
-        if(IsPhaseFive() && _players.Count < 7)
+        DisableNavigationElements();
+
+        if(_players.Count < 7)
             BuildPartySnapshot();
 
-        if(!IsPhaseFive() || BasePlayer == null || _players.Count != 8)
-        {
-            DisableNavigationElements();
-            return;
-        }
+        if(!IsPhaseFive() || _state == State.Wait || BasePlayer == null || _players.Count != 8) return;
 
-        if(!_players.TryGetValue(BasePlayer.GameObjectId, out var me))
-        {
-            DisableNavigationElements();
-            return;
-        }
+        if(!_players.TryGetValue(BasePlayer.GameObjectId, out var me)) return;
+        
+        RecomputeDerivedRoles();
 
-        if(_state is State.Wait or State.Calc)
-        {
-            DisableNavigationElements();
-            return;
-        }
+        if(_state == State.Calc) return;
 
         if(_state == State.AvoidRazor)
         {
@@ -297,8 +324,6 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         if(omegaFemale != null)
             _initAngle = NormalizeDegrees(GetRelativeAngleFromArenaCenter(omegaFemale.Position));
 
-        RecomputeDerivedRoles();
-
         _state = State.AvoidRazor;
     }
 
@@ -328,6 +353,8 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         data.MarkerP1 = p1;
         if(data.Name.Length == 0)
             data.Name = Svc.Objects.FirstOrDefault(x => x.GameObjectId == markedGoId)?.Name.ToString() ?? string.Empty;
+            
+        RecomputeDerivedRoles();
     }
 
     public override void OnSettingsDraw()
@@ -348,8 +375,8 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
             DrawRoleSettingsRowMarkerSpreadDual("#baitArm2", ref C.BaitArm2Marker, ref C.SpreadGroupBaitArm2, ref C.DegSpreadBaitArm2, ref C.DegSpreadBaitArm2Ccw, ref C.RadiusBaitArm2);
             DrawRoleSettingsRowMarkerSpreadDual("#baitFar1", ref C.BaitFar1Marker, ref C.SpreadGroupBaitFar1, ref C.DegSpreadBaitFar1, ref C.DegSpreadBaitFar1Ccw, ref C.RadiusBaitFar1);
             DrawRoleSettingsRowMarkerSpreadDual("#baitFar2", ref C.BaitFar2Marker, ref C.SpreadGroupBaitFar2, ref C.DegSpreadBaitFar2, ref C.DegSpreadBaitFar2Ccw, ref C.RadiusBaitFar2);
-            DrawRoleSettingsRowMarkerSpreadDual("#baitNear1", ref C.BaitNear1Marker, ref C.SpreadGroupBaitNear1, ref C.DegSpreadBaitNear1, ref C.DegSpreadBaitNear1Ccw, ref C.RadiusBaitNear1);
-            DrawRoleSettingsRowMarkerSpreadDual("#baitNear2", ref C.BaitNear2Marker, ref C.SpreadGroupBaitNear2, ref C.DegSpreadBaitNear2, ref C.DegSpreadBaitNear2Ccw, ref C.RadiusBaitNear2);
+            DrawRoleSettingsRowSpreadHintDual("#baitNear1", "(remaining)", ref C.SpreadGroupBaitNear1, ref C.DegSpreadBaitNear1, ref C.DegSpreadBaitNear1Ccw, ref C.RadiusBaitNear1);
+            DrawRoleSettingsRowSpreadHintDual("#baitNear2", "(remaining)", ref C.SpreadGroupBaitNear2, ref C.DegSpreadBaitNear2, ref C.DegSpreadBaitNear2Ccw, ref C.RadiusBaitNear2);
             ImGui.EndTable();
         }
         ImGui.TextDisabled("Cw: Clockwise, Ccw: Counter-Clockwise. Angle is relative to Omega-F, which is true north.");
@@ -371,6 +398,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
     {
         if(ImGui.Button("Import Japanese Strat"))
             ApplyJapaneseStrat(C);
+        ImGuiEx.HelpMarker("Macro: https://jp.finalfantasyxiv.com/lodestone/character/34120564/blog/5178791/\nRaidPlan: https://raidplan.io/plan/u98293e225836jcy");
     }
 
     // Debug table: state, rotation, and per-player marker / role.
@@ -398,16 +426,20 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         ImGui.EndTable();
     }
 
-    // One settings row for hello roles (spread only, no marker column).
-    private static void DrawRoleSettingsRowHelloDual(string roleLabel, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
+    // One settings row: marker column shows a hint only (no raid marker combo).
+    private static void DrawRoleSettingsRowSpreadHintDual(string roleLabel, string markerHint, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
     {
         ImGui.TableNextRow();
         ImGui.TableNextColumn();
         ImGui.Text(roleLabel);
         ImGui.TableNextColumn();
-        ImGui.TextDisabled("(debuff)");
+        ImGui.TextDisabled(markerHint);
         DrawSpreadCells(roleLabel, ref spreadGroup, ref spreadCwDeg, ref spreadCcwDeg, ref radius);
     }
+
+    // One settings row for hello roles (spread only, debuff-assigned).
+    private static void DrawRoleSettingsRowHelloDual(string roleLabel, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
+        => DrawRoleSettingsRowSpreadHintDual(roleLabel, "(debuff assigned)", ref spreadGroup, ref spreadCwDeg, ref spreadCcwDeg, ref radius);
 
     // One settings row: raid marker combo plus spread group and angles.
     private static void DrawRoleSettingsRowMarkerSpreadDual(string roleLabel, ref MarkerType marker, ref Group spreadGroup, ref float spreadCwDeg, ref float spreadCcwDeg, ref float radius)
@@ -420,12 +452,20 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         DrawSpreadCells(roleLabel, ref spreadGroup, ref spreadCwDeg, ref spreadCcwDeg, ref radius);
     }
 
-    // Narrow combo cell for a single MarkerType field.
+    // Narrow combo: Attack1–4, Bind1–2, Stop1–2 only (invalid saved values coerced to Attack1).
     private static void DrawMarkerCell(string id, ref MarkerType marker)
     {
+        var idx = Array.IndexOf(MarkerPresetOrder, marker);
+        if(idx < 0)
+        {
+            marker = MarkerPresetOrder[0];
+            idx = 0;
+        }
+
         ImGui.PushID(id);
         ImGui.SetNextItemWidth(SettingsCellWidth);
-        ImGuiEx.EnumCombo("##marker", ref marker);
+        if(ImGui.Combo("##marker", ref idx, MarkerPresetComboLabels, MarkerPresetComboLabels.Length))
+            marker = MarkerPresetOrder[idx];
         ImGui.PopID();
     }
 
@@ -483,7 +523,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
     // Applies default JP strat markers, angles, and shared spread groups to config.
     private static void ApplyJapaneseStrat(Config c)
     {
-        SetMarkers(c, MarkerType.Attack1, MarkerType.Attack2, MarkerType.Attack3, MarkerType.Attack4, MarkerType.None, MarkerType.None);
+        SetMarkers(c, MarkerType.Attack1, MarkerType.Attack2, MarkerType.Attack3, MarkerType.Attack4);
         SetSpread(ref c.DegSpreadHelloNear, ref c.DegSpreadHelloNearCcw, 180f, 180f);
         SetSpread(ref c.DegSpreadHelloFar, ref c.DegSpreadHelloFarCcw, 270f, 90f);
         SetSpread(ref c.DegSpreadBaitArm1, ref c.DegSpreadBaitArm1Ccw, 317.5f, 317.5f);
@@ -496,14 +536,12 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
     }
 
     // Writes bait marker enum fields on config in one call.
-    private static void SetMarkers(Config c, MarkerType arm1, MarkerType arm2, MarkerType far1, MarkerType far2, MarkerType near1, MarkerType near2)
+    private static void SetMarkers(Config c, MarkerType arm1, MarkerType arm2, MarkerType far1, MarkerType far2)
     {
         c.BaitArm1Marker = arm1;
         c.BaitArm2Marker = arm2;
         c.BaitFar1Marker = far1;
         c.BaitFar2Marker = far2;
-        c.BaitNear1Marker = near1;
-        c.BaitNear2Marker = near2;
     }
 
     // Sets both cw and ccw spread degree fields to fixed preset values.
@@ -524,10 +562,9 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         c.SpreadGroupBaitFar2 = Group.South;
         c.SpreadGroupBaitNear1 = Group.South;
         c.SpreadGroupBaitNear2 = Group.South;
-        c.SpreadGroupBaitNearDual = Group.South;
     }
 
-    // Re-runs marker → near/far → remaining near pairing after debug edits.
+    // Re-runs marker roles, hello debuffs, then assigns the two remaining players as bait-near.
     private void RecomputeDerivedRoles()
     {
         ApplyMarkerRoles();
@@ -542,7 +579,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         var choice = ToEditableMarkerType(player.MarkerP1);
         var before = player.MarkerP1;
         ImGui.SetNextItemWidth(MathF.Min(240f, ImGui.GetContentRegionAvail().X));
-        ImGuiEx.EnumCombo("##dbgMarker", ref choice);
+        DrawPresetMarkerComboUnset("##dbgMarker", ref choice);
         var after = FromEditableMarkerType(choice);
         if(after != before)
         {
@@ -554,6 +591,22 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         if(player.MarkerP1 != MarkerP1Unset && !Enum.IsDefined(typeof(MarkerType), player.MarkerP1))
             ImGui.TextDisabled($"non-enum p1={player.MarkerP1}");
         ImGui.PopID();
+    }
+
+    // Debug marker combo: (unset) plus the same presets as settings.
+    private static void DrawPresetMarkerComboUnset(string label, ref MarkerType marker)
+    {
+        int idx;
+        if(marker == MarkerType.None)
+            idx = 0;
+        else
+        {
+            var p = Array.IndexOf(MarkerPresetOrder, marker);
+            idx = p >= 0 ? p + 1 : 0;
+        }
+
+        if(ImGui.Combo(label, ref idx, DebugMarkerComboLabelsWithUnset, DebugMarkerComboLabelsWithUnset.Length))
+            marker = idx == 0 ? MarkerType.None : MarkerPresetOrder[idx - 1];
     }
 
     // Maps raw marker P1 to editor enum (unset or unknown become None).
@@ -617,36 +670,15 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         }
     }
 
-    // Pairs the last two unassigned players into bait-near roles from markers or dual bait.
+    // Assigns BaitNear1/2 to the two players not Hello/Far and not arm/far bait (order-independent).
     private void ResolveRemainingNearRoles()
     {
         var remaining = _players.Values.Where(x => x.Role == Role.None).ToList();
         if(remaining.Count != 2) return;
 
-        var withMarker = remaining.Where(x => HasRaidMarkerP1(x.MarkerP1)).ToList();
-        if(withMarker.Count == 2)
-        {
-            foreach(var player in withMarker)
-            {
-                player.Role = player.MarkerP1 switch
-                {
-                    var x when x == (uint)C.BaitNear1Marker => Role.BaitNear1,
-                    var x when x == (uint)C.BaitNear2Marker => Role.BaitNear2,
-                    _ => Role.None
-                };
-            }
-            return;
-        }
-
-        if(withMarker.Count == 1)
-        {
-            withMarker[0].Role = Role.BaitNear1;
-            remaining.First(x => x.ObjectId != withMarker[0].ObjectId).Role = Role.BaitNear2;
-            return;
-        }
-
-        remaining[0].Role = Role.BaitNear;
-        remaining[1].Role = Role.BaitNear;
+        remaining.Sort((a, b) => a.ObjectId.CompareTo(b.ObjectId));
+        remaining[0].Role = Role.BaitNear1;
+        remaining[1].Role = Role.BaitNear2;
     }
 
     // Stand position for razor dodge using init angle, cw flag, and north/south group.
@@ -656,7 +688,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         var angle = _isClockwise
             ? (group == Group.North ? _initAngle - 22.5f : _initAngle - 22.5f + 180f)
             : (group == Group.North ? _initAngle + 22.5f : _initAngle + 22.5f + 180f);
-        return CalculatePointFromCenterByDegree(ArenaCenter, 19f, angle);
+        return CalculatePointFromCenterByDegree(ArenaCenter, DefaultOtherSpreadRadius, angle);
     }
 
     // Updates main (and optional sub) nav elements for hello spread from role config.
@@ -715,13 +747,11 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
                 return true;
             case Role.BaitNear1:
                 primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear1, C.DegSpreadBaitNear1Ccw);
+                secondaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear2, C.DegSpreadBaitNear2Ccw);
                 return true;
             case Role.BaitNear2:
                 primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear2, C.DegSpreadBaitNear2Ccw);
-                return true;
-            case Role.BaitNear:
-                primaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear1, C.DegSpreadBaitNear1Ccw);
-                secondaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear2, C.DegSpreadBaitNear2Ccw);
+                secondaryOffset = SpreadOffsetByDirection(C.DegSpreadBaitNear1, C.DegSpreadBaitNear1Ccw);
                 return true;
             default:
                 primaryOffset = default;
@@ -745,7 +775,6 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
             Role.BaitFar2 => C.SpreadGroupBaitFar2,
             Role.BaitNear1 => C.SpreadGroupBaitNear1,
             Role.BaitNear2 => C.SpreadGroupBaitNear2,
-            Role.BaitNear => C.SpreadGroupBaitNearDual,
             _ => Group.South
         };
 
@@ -774,11 +803,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         element.Enabled = true;
     }
 
-    // True when P1 looks like a real raid marker id (not unset/none).
-    private static bool HasRaidMarkerP1(uint p1)
-        => p1 != MarkerP1Unset && Enum.IsDefined(typeof(MarkerType), p1) && p1 != (uint)MarkerType.None;
-
-    // Configured spread radius for the role (hello, bait, dual near).
+    // Configured spread radius for the role (hello, bait, bait-near).
     private float GetSpreadRadius(Role role)
         => role switch
         {
@@ -790,13 +815,17 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
             Role.BaitFar2 => ClampSpreadRadius(C.RadiusBaitFar2),
             Role.BaitNear1 => ClampSpreadRadius(C.RadiusBaitNear1),
             Role.BaitNear2 => ClampSpreadRadius(C.RadiusBaitNear2),
-            Role.BaitNear => ClampSpreadRadius(C.RadiusBaitNearDual),
             _ => DefaultOtherSpreadRadius
         };
 
-    // Secondary nav radius for dual bait-near (second stack); else same as primary.
+    // Secondary nav radius; for bait-near roles, shows the paired near slot on nav_sub.
     private float GetSpreadSubRadius(Role role)
-        => role == Role.BaitNear ? ClampSpreadRadius(C.RadiusBaitNear2) : GetSpreadRadius(role);
+        => role switch
+        {
+            Role.BaitNear1 => ClampSpreadRadius(C.RadiusBaitNear2),
+            Role.BaitNear2 => ClampSpreadRadius(C.RadiusBaitNear1),
+            _ => GetSpreadRadius(role)
+        };
 
     // Hides both registered nav elements.
     private void DisableNavigationElements()

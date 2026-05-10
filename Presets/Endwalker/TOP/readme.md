@@ -41,13 +41,17 @@ for JP
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P5_Dynamis_Sigma_Hello_World.cs
 ```
 
-P5のコードデュナミス・シグマのハロワ処理のスクリプトです。マーカーとデバフをもとに散開先にガイドします。また、回転ビームとオメガFのブレードアクションも回避するようガイドされるので、関連するレイアウトは無効化して問題ありません。
+P5のコードデュナミス・シグマのハロワ処理のスクリプトです。マーカーとデバフをもとに散開先にガイドします。また、回転ビームとオメガFのブレードアクションも回避するようガイドされるので、関連するレイアウトは無効化して問題ありません。ニア誘導担当はマーカーに関わらず2か所ある候補地の両方が表示されます。
 
 ### Configration
-[シグマりょんめ](https://youtu.be/pNS1WBbs89w?t=1180)のプリセットを用意しています。これらの処理法以外の設定が必要な場合は手動で設定してください。
+
+各担当がどのポジションに行くのかを細かく設定できます。不明点があれば連絡してください。
 
 ### Configration Sample
 りりどマクロの場合は「Import Japanese Strat」で問題ありません。
+
+- Macro: https://jp.finalfantasyxiv.com/lodestone/character/34120564/blog/5178791/
+- RaidPlan: https://raidplan.io/plan/u98293e225836jcy
 
 ## P5 Dynamis Omega Safe Guide
 ```

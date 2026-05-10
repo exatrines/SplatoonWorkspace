@@ -5,6 +5,10 @@
 Splatoonの `Trusted Repos` にこのリポジトリのURLを追加してください。
 もしくはURLをブラウザで開き、コードを直接コピーしてインポートしてください。ただし、この方法でインポートした場合はスクリプトにアップデートがあった場合主導で取り込む必要があります。
 
+## Support
+
+https://ko-fi.com/exatrines
+
 ## Contact
 不具合報告や要望はdiscordに連絡をお願いします。
 

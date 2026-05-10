@@ -81,6 +81,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         South
     }
 
+    // Values match MarkingController marker indices (see Splatoon.Memory.Marking).
     public enum MarkerType : uint
     {
         None = 999,
@@ -89,14 +90,18 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         Attack3 = 2,
         Attack4 = 3,
         Attack5 = 4,
-        Attack6 = 5,
-        Attack7 = 6,
-        Attack8 = 7,
-        Bind1 = 8,
-        Bind2 = 9,
-        Bind3 = 10,
-        Ignore1 = 11,
-        Ignore2 = 12
+        Bind1 = 5,
+        Bind2 = 6,
+        Bind3 = 7,
+        Stop1 = 8,
+        Stop2 = 9,
+        Square = 10,
+        Circle = 11,
+        Cross = 12,
+        Triangle = 13,
+        Attack6 = 14,
+        Attack7 = 15,
+        Attack8 = 16
     }
 
     private sealed class PlayerData
@@ -326,16 +331,15 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
     public override void OnSettingsDraw()
     {
-        ImGui.Text($"BasePlayer: {Controller.BasePlayer?.Name.ToString() ?? "null"}");
-        ImGui.TextWrapped("This Script guides next 4 steps:");
-        ImGui.TextWrapped("Step1: Spread Group. Step2: Avoid Razor. Step3: Avoid Omega-F actions (Foot or Staff). Step4: Spread Hello World.");
+        ImGui.TextWrapped("This Script guides next 3 steps:");
+        ImGui.Indent();
+        ImGui.TextWrapped("Step1: Avoid Razor.");
+        ImGui.TextWrapped("Step2: Avoid Omega-F actions (Foot or Staff).");
+        ImGui.TextWrapped("Step3: Spread Hello World.");
+        ImGui.Unindent();
         ImGui.NewLine();
 
-        DrawImportButtons();
-        ImGui.TextWrapped("If other configurations are needed, please adjust the settings manually.");
-        ImGui.NewLine();
-
-        if(ImGuiEx.BeginDefaultTable("P5SigmaHelloWorldSettings", ["Role", "Marker", "Spread Group", "Angle from Omega-F (Cw)", "Angle from Omega-F (Ccw)", "Range from Center"]))
+        if(ImGuiEx.BeginDefaultTable("P5SigmaHelloWorldSettings", ["Role", "Marker", "Group", "Spread Angle (Cw)", "Spread Angle (Ccw)", "Range from Center"]))
         {
             DrawRoleSettingsRowHelloDual("HelloNear", ref C.SpreadGroupHelloNear, ref C.DegSpreadHelloNear, ref C.DegSpreadHelloNearCcw, ref C.RadiusHelloNear);
             DrawRoleSettingsRowHelloDual("HelloFar", ref C.SpreadGroupHelloFar, ref C.DegSpreadHelloFar, ref C.DegSpreadHelloFarCcw, ref C.RadiusHelloFar);
@@ -347,9 +351,13 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
             DrawRoleSettingsRowMarkerSpreadDual("#baitNear2", ref C.BaitNear2Marker, ref C.SpreadGroupBaitNear2, ref C.DegSpreadBaitNear2, ref C.DegSpreadBaitNear2Ccw, ref C.RadiusBaitNear2);
             ImGui.EndTable();
         }
-        ImGui.TextDisabled("Cw: Clockwise, Ccw: Counter-Clockwise.");
-
+        ImGui.TextDisabled("Cw: Clockwise, Ccw: Counter-Clockwise. Angle is relative to Omega-F, which is true north.");
         ImGui.NewLine();
+
+        DrawImportButtons();
+        ImGui.TextWrapped("If other configurations are needed, please adjust the settings manually.");
+        ImGui.NewLine();
+
         if(ImGui.CollapsingHeader("Debug"))
             DrawDebugSection();
     }

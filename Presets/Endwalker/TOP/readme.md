@@ -1,7 +1,7 @@
 # The Omega Protocol
 ## P3 Transition
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P3_Transition.cs
+https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P3_Transition.cs
 ```
 
 P3のコロッサスブローをフルガイドするスクリプトです。パルス（ドーナツ範囲）のAOEは表示されないので、任意のレイアウトを導入してください。
@@ -18,7 +18,7 @@ Priority設定が必要です。
 
 ## P5 Dynamis Sigma Relative Tower Finder
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Sigma_Relative_Tower_Finder.cs
+https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P5_Dynamis_Sigma_Relative_Tower_Finder.cs
 ```
 
 P5のコードデュナミス・シグマの「マクロ押さない式」のスクリプトです。波動砲の散開位置を基準にどの塔に入るべきかナビゲーションされます。
@@ -38,7 +38,7 @@ for JP
 
 ## P5 Dynamis Sigma Hello World
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Sigma_Hello_World.cs
+https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P5_Dynamis_Sigma_Hello_World.cs
 ```
 
 P5のコードデュナミス・シグマのハロワ処理のスクリプトです。マーカーとデバフをもとに散開先にガイドします。また、回転ビームとオメガFのブレードアクションも回避するようガイドされるので、関連するレイアウトは無効化して問題ありません。
@@ -51,7 +51,7 @@ P5のコードデュナミス・シグマのハロワ処理のスクリプトで
 
 ## P5 Dynamis Omega Safe Guide
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Omega_Safe_Guide.cs
+https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P5_Dynamis_Omega_Safe_Guide.cs
 ```
 
 P5のコードデュナミス・オメガの激狭安置にナビします。

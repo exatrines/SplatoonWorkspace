@@ -1,7 +1,7 @@
 # Sphene's Burden
 ## Coronation
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Duties/Dawntrail/EX3_Coronation.cs
+https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Dawntrail/EX3/EX3_Coronation.cs
 ```
 
 端末射出のスクリプトです。設定に基づき散開位置にガイドします。

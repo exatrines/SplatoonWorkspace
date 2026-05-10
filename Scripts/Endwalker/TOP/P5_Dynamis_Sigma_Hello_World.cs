@@ -56,6 +56,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
     private enum State
     {
         Wait,
+        Calc,
         AvoidRazor,
         AvoidOmegaFAction,
         SpreadHelloWorld
@@ -123,7 +124,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         public MarkerType BaitFar1Marker = MarkerType.Attack3;
         public MarkerType BaitFar2Marker = MarkerType.Attack4;
         public MarkerType BaitNear1Marker = MarkerType.None;
-        public MarkerType BaitNear2Marker = MarkerType.None;
+        public MarkerType BaitNear2Marker = MarkerType.Attack4;
 
         public float DegSpreadHelloNear = 180f;
         public float DegSpreadHelloNearCcw = 180f;
@@ -198,7 +199,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
             return;
         }
 
-        if(_state == State.Wait)
+        if(_state is State.Wait or State.Calc)
         {
             DisableNavigationElements();
             return;
@@ -261,7 +262,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
         if(actionId == ActionCodeDynamisSigma)
         {
-            _state = State.Wait;
+            _state = State.Calc;
             return;
         }
 
@@ -285,7 +286,7 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
     public override void OnVFXSpawn(uint target, string vfxPath)
     {
-        if(!IsPhaseFive() || _state != State.Wait || _players.Count != 8) return;
+        if(!IsPhaseFive() || _state != State.Calc || _players.Count != 8) return;
         if(!vfxPath.Equals(VfxClockwise, StringComparison.OrdinalIgnoreCase)
            && !vfxPath.Equals(VfxCounterClockwise, StringComparison.OrdinalIgnoreCase))
             return;

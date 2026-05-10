@@ -118,12 +118,12 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
 
     public sealed class Config : IEzConfig
     {
-        public MarkerType BaitArm1Marker = MarkerType.Bind1;
-        public MarkerType BaitArm2Marker = MarkerType.Bind2;
-        public MarkerType BaitFar1Marker = MarkerType.Attack1;
-        public MarkerType BaitFar2Marker = MarkerType.Attack2;
-        public MarkerType BaitNear1Marker = MarkerType.Attack3;
-        public MarkerType BaitNear2Marker = MarkerType.Attack4;
+        public MarkerType BaitArm1Marker = MarkerType.Attack1;
+        public MarkerType BaitArm2Marker = MarkerType.Attack2;
+        public MarkerType BaitFar1Marker = MarkerType.Attack3;
+        public MarkerType BaitFar2Marker = MarkerType.Attack4;
+        public MarkerType BaitNear1Marker = MarkerType.None;
+        public MarkerType BaitNear2Marker = MarkerType.None;
 
         public float DegSpreadHelloNear = 180f;
         public float DegSpreadHelloNearCcw = 180f;

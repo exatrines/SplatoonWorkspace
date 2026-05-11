@@ -104,10 +104,10 @@ public class P5_Dynamis_Sigma_Hello_World : SplatoonScript
         public MarkerType BaitArm2Marker = MarkerType.Attack2;
         public MarkerType BaitFar1Marker = MarkerType.Attack3;
         public MarkerType BaitFar2Marker = MarkerType.Attack4;
-        public MarkerType BaitNear1Marker = MarkerType.Bind1;
-        public MarkerType BaitNear2Marker = MarkerType.Bind2;
+        public MarkerType BaitNear1Marker = MarkerType.Attack5;
+        public MarkerType BaitNear2Marker = MarkerType.Attack6;
 
-        public bool ResolveBaitNearWithoutMarker = true;
+        public bool ResolveBaitNearWithoutMarker = false;
 
         public float DegSpreadHelloNear = 180f;
         public float DegSpreadHelloNearCcw = 180f;

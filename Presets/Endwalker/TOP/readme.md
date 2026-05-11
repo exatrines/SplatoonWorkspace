@@ -41,14 +41,17 @@ for JP
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P5_Dynamis_Sigma_Hello_World.cs
 ```
 
-P5のコードデュナミス・シグマのハロワ処理のスクリプトです。マーカーとデバフをもとに散開先にガイドします。また、回転ビームとオメガFのブレードアクションも回避するようガイドされるので、関連するレイアウトは無効化して問題ありません。ニア誘導担当はマーカーに関わらず2か所ある候補地の両方が表示されます。
+P5のコードデュナミス・シグマのハロワ処理のスクリプトです。マーカーとデバフをもとに散開先にガイドします。また、回転ビームとオメガFのブレードアクションも回避するようガイドされるので、関連するレイアウトは無効化して問題ありません。
 
 ### Configration
 
-各担当がどのポジションに行くのかを細かく設定できます。不明点があれば連絡してください。
+各担当がどのポジションに行くのかを細かく設定できます。ギミックの都合でエレメントの編集で位置を変更することができないので、テーブル上で編集してください。
+
+#### Resolve BaitNear
+ニア誘導をマーカー依存ではなくどのロールにも割当たっていない残りの２名とします。チェックを押すとBaitNear1, 2の選択肢が非表示になり、誘導位置両方にテザー表示されます。`Attack me`マクロを各自押すタイプだとAttack5,6が付与されないことがあるので、チェックを推奨します。
 
 ### Configration Sample
-りりどマクロの場合は「Import Japanese Strat」で問題ありません。
+りりどマクロの場合は「Import Japanese Strat」を押下してください。
 
 - Macro: https://jp.finalfantasyxiv.com/lodestone/character/34120564/blog/5178791/
 - RaidPlan: https://raidplan.io/plan/u98293e225836jcy
@@ -68,3 +71,24 @@ P5のコードデュナミス・オメガの激狭安置にナビします。
 
 ### Configration
 設定不要
+
+## P5 Dynamis Omega Hello World
+```
+https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P5_Dynamis_Omega_Hello_World.cs
+```
+
+デバフとマーカーでハロワの散開先をナビします。優先度での割り当ては行わないので、必ずマーカー付与が必要です。
+
+初期設定時の各エレメントの初期表示位置はRaidPlanを参考にしてください。
+
+- [RaidPlan](https://raidplan.io/plan/fbxgrh8z7z6x8kvu)
+
+### Configration
+Spread1, Spread2にそれぞれマーカーと担当を指定してください。
+
+#### Resolve BaitNear
+ニア誘導をマーカー依存ではなくどのロールにも割当たっていない残りの２名とします。チェックを押すとBaitNear1, 2の選択肢が非表示になり、誘導位置両方にテザー表示されます。
+
+#### Resolve BaitTether
+オメガ紐の誘導をマーカー依存ではなくデュナミスが３の２名とします。チェックを押すとBaitTether1, 2の選択肢が非表示になり、誘導位置両方にテザー表示されます。
+

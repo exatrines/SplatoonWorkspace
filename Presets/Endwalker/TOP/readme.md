@@ -61,7 +61,7 @@ P5のコードデュナミス・シグマのハロワ処理のスクリプトで
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P5_Dynamis_Omega_Safe_Guide.cs
 ```
 
-P5のコードデュナミス・オメガの激狭安置にナビします。
+P5のコードデュナミス・オメガの激狭安置にナビします。1回目、2回目の安置を表示し、1回目にテザーを表示します。1回目着弾後テザーが2回目の安置に引き直されます。
 
 視認性を上げるために公式レイアウトの以下レイアウトを非表示、もしくは透明度を下げることを推奨します。
 
@@ -72,12 +72,15 @@ P5のコードデュナミス・オメガの激狭安置にナビします。
 ### Configration
 設定不要
 
+### Sample
+![](https://media.discordapp.net/attachments/1489216812674715708/1502283862804271265/image.png?ex=6a02721f&is=6a01209f&hm=31cd8a1a161775a5e66644d1e572bd3e4ad1fe8c19b6d4857d4641d81049cd6c&=&format=webp&quality=lossless&width=1234&height=602)
+
 ## P5 Dynamis Omega Hello World
 ```
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P5_Dynamis_Omega_Hello_World.cs
 ```
 
-デバフとマーカーでハロワの散開先をナビします。優先度での割り当ては行わないので、必ずマーカー付与が必要です。
+デバフとマーカーでハロワの散開先をナビします。必ずマーカー付与が必要です。
 
 初期設定時の各エレメントの初期表示位置はRaidPlanを参考にしてください。
 

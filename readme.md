@@ -1,10 +1,6 @@
 # Splatoon
 自分が欲しいな～と思ったスクリプトやレイアウトを共有します。
 
-## スクリプトのインポートが失敗する場合
-Splatoonの `Trusted Repos` にこのリポジトリのURLを追加してください。
-もしくはURLをブラウザで開き、コードを直接コピーしてインポートしてください。ただし、この方法でインポートした場合はスクリプトにアップデートがあった場合主導で取り込む必要があります。
-
 ## Support
 
 https://ko-fi.com/exatrines
@@ -13,3 +9,8 @@ https://ko-fi.com/exatrines
 不具合報告や要望はdiscordに連絡をお願いします。
 
 discord: `a_risky_bet`
+
+## Documentation
+
+- ドキュメント（GitHub Pages）: https://exatrines.github.io/SplatoonWorkspace/
+- ローカルプレビュー（リポジトリルートで）: `pip install -r requirements-docs.txt` のあと `mkdocs serve`

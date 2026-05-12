@@ -1,0 +1,79 @@
+site_name: Splatoon Workspace
+site_description: Splatoon scripts and layout documentation
+site_url: https://exatrines.github.io/SplatoonWorkspace/
+repo_url: https://github.com/exatrines/SplatoonWorkspace
+repo_name: exatrines/SplatoonWorkspace
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - toc.follow
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - English:
+      - Endwalker:
+          - TOP:
+              - Scripts:
+                  - P3 Transition: en/Endwalker/TOP/Scripts/P3_Transition.md
+                  - P5 Dynamis Omega Hello World: en/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
+                  - P5 Dynamis Omega Safe Guide: en/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
+                  - P5 Dynamis Sigma Hello World: en/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
+                  - P5 Dynamis Sigma Relative Tower Finder: en/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
+      - Dawntrail:
+          - EX3:
+              - Scripts:
+                  - EX3 Coronation: en/Dawntrail/EX3/Scripts/EX3_Coronation.md
+  - 日本語:
+      - Endwalker:
+          - TOP:
+              - Scripts:
+                  - P3 Transition: ja/Endwalker/TOP/Scripts/P3_Transition.md
+                  - P5 Dynamis Omega Hello World: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
+                  - P5 Dynamis Omega Safe Guide: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
+                  - P5 Dynamis Sigma Hello World: ja/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
+                  - P5 Dynamis Sigma Relative Tower Finder: ja/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
+      - Dawntrail:
+          - EX3:
+              - Scripts:
+                  - EX3 Coronation: ja/Dawntrail/EX3/Scripts/EX3_Coronation.md
+
+markdown_extensions:
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra:
+  generator: false

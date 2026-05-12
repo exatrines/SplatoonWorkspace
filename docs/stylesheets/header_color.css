@@ -10,13 +10,6 @@
   --md-accent-fg-color: #fa9fc4;
 }
 
-@media screen {
-  [data-md-color-scheme="slate"][data-md-color-primary="#fa9fc4"] {
-    --md-typeset-a-color: #fa9fc4;
-    --md-accent-fg-color: #fa9fc4;
-  }
-}
-
 /* ロゴを少し大きく＋円形。既定の margin/padding+1.2rem 高さ≒2.4rem を維持するため余白を調整 */
 .md-header__button.md-logo {
   margin: 0.15rem;

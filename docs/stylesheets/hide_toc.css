@@ -1,0 +1,12 @@
+/* 画面右のページ内目次（セカンダリサイドバー）を非表示 */
+.md-sidebar--secondary,
+.md-sidebar[data-md-type="toc"] {
+  display: none !important;
+}
+
+/* 3 カラムグリッドから TOC 列を除き、本文エリアを広げる */
+@media (min-width: 76.25em) {
+  .md-main__inner.md-grid {
+    grid-template-columns: minmax(0, var(--md-sidebar-width)) minmax(0, 1fr);
+  }
+}

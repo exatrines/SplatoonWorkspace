@@ -19,7 +19,6 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.path
-    - toc.follow
     - content.code.copy
     - search.suggest
     - search.highlight
@@ -79,7 +78,6 @@ plugins:
                         - EX3 Coronation: Dawntrail/EX3/Scripts/EX3_Coronation.md
             - "[6.x] Endwalker":
                 - "[6.3] The Omega Protocol (Ultimate)":
-                    - Home: Endwalker/TOP/index.md
                     - Scripts:
                         - P3 Transition: Endwalker/TOP/Scripts/P3_Transition.md
                         - P5 Dynamis Sigma Relative Tower Finder: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
@@ -100,7 +98,16 @@ nav:
               - EX3 端末射出: Dawntrail/EX3/Scripts/EX3_Coronation.md
   - "[6.x] 暁月のフィナーレ":
       - "[6.3] 絶オメガ検証戦":
-          - Home: Endwalker/TOP/index.md
+          - Index: Endwalker/TOP/index.md
+          - "Presets":
+            - "P1 オメガ": Endwalker/TOP/Presets/P1_Omega.md
+            - "P2 オメガM & オメガF": Endwalker/TOP/Presets/P2_OmegaM_And_OmegaF.md
+            - "P3 ファイナルオメガ": Endwalker/TOP/Presets/P3_Final_Omega.md
+            - "P4 リブート": Endwalker/TOP/Presets/P4_Reboot.md
+            - "P5 コード：＊＊＊ミ＊【デルタ】": Endwalker/TOP/Presets/P5S1_Dynamis_Delta.md
+            - "P5 コード：＊＊＊ミ＊【シグマ】": Endwalker/TOP/Presets/P5S2_Dynamis_Sigma.md
+            - "P5 コード：＊＊＊ミ＊【オメガ】": Endwalker/TOP/Presets/P5S3_Dynamis_Omega.md
+            - "P6 アルファオメガ": Endwalker/TOP/Presets/P6_Alpha_Omega.md
           - Scripts:
               - P3 コロッサスブロー: Endwalker/TOP/Scripts/P3_Transition.md
               - P5 コード：＊＊＊ミ＊【シグマ】 塔マクロ押さない式ガイド: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
@@ -124,3 +131,4 @@ extra:
 extra_css:
   - stylesheets/header_color.css
   - stylesheets/content_images.css
+  - stylesheets/hide_toc.css

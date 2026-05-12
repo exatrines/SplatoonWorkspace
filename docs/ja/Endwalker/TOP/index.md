@@ -12,25 +12,23 @@
 - [P5 コード：＊＊＊ミ＊【オメガ】](./Presets/P5S3_Dynamis_Omega.md)
 - [P6 アルファオメガ](./Presets/P6_Alpha_Omega.md)
 
-
 ## その他のプラグイン
 ### Lemegeton
 
 [マーカー付与・タイムライン作成＋表示「Lemegeton」の紹介 - とらめもブログ](https://toramemoblog.com/lemegeton)
 
 ### Chibi Omega
-P1とP3のオメガのサイズを小さくするプラグインです。録画にも小さく映るので注意が必要です。
+P1とP3のオメガのサイズを小さくするプラグインです。録画や画面共有、配信にも小さく映るので注意が必要です。
 以下外部リポジトリを設定し、プラグイン一覧から「Chibi Omega」を有効化することで使用できます。
 
 ```
 https://github.com/paissaheavyindustries/Dalamud-Repo/blob/main/repo.json
 ```
 
-
 ## thanks
 このまとめは様々な方の協力があって作成されました。
 
-- 光のツーラー様: [光のツーラー](https://tooleroflight.blog.jp/archives/24065980.html)
-- ungeho様: [絶オメガ検証戦 - ungeho blog](https://ungeho.netlify.app/posts/splatoon-top/)
+- [FF14 Splatoon 絶オメガで便利なレイアウトとスクリプトまとめ - 光のツーラー](https://tooleroflight.blog.jp/archives/24065980.html)
+- [絶オメガ検証戦 - ungeho blog](https://ungeho.netlify.app/posts/splatoon-top/)
 
 ほか、スクリプト・レイアウト・設定情報を提供いただいた皆様。

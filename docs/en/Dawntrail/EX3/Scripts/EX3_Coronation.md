@@ -1,11 +1,13 @@
 # EX3 Coronation
 ## About
-This script guides **Coronation** in Sphene’s Burden (EX3). Based on your configuration, it shows spread positions.
+This script guides Coronation in Sphene’s Burden. Based on your configuration, it shows spread positions.
 
 ## Import URL
 Open the URL, copy the content, and then click “Install from Clipboard” in Splatoon.
 
+```
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Dawntrail/EX3/EX3_Coronation.cs
+```
 
 ## Configuration
 

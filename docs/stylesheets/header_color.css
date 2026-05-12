@@ -1,0 +1,38 @@
+/* Material は名前付き primary のみパレット定義あり。hex は data 属性だけ付くので変数を明示する */
+[data-md-color-primary="#fa9fc4"] {
+  --md-primary-fg-color: #fa9fc4;
+  --md-primary-fg-color--light: #ffb8d9;
+  --md-primary-fg-color--dark: #e879a8;
+  /* ヘッダー背景が明るいので、ナビ文字・アイコンは暗色（Material の「背景に対する前景」） */
+  --md-primary-bg-color: #452b2d;
+  --md-primary-bg-color--light: #452b2db3;
+}
+
+@media screen {
+  [data-md-color-scheme="slate"][data-md-color-primary="#fa9fc4"] {
+    --md-typeset-a-color: #ff8ec0;
+  }
+}
+
+/* ロゴを少し大きく＋円形。既定の margin/padding+1.2rem 高さ≒2.4rem を維持するため余白を調整 */
+.md-header__button.md-logo {
+  margin: 0.15rem;
+  padding: 0.25rem;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Material は [dir=ltr] .md-header__title で margin を指定しており、単体セレクタより詳細度が高い */
+[dir="ltr"] .md-header__title {
+  margin-left: 0;
+}
+
+[dir="rtl"] .md-header__title {
+  margin-right: 0;
+}

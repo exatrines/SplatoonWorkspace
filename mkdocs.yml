@@ -1,4 +1,4 @@
-site_name: Splatoon Workspace by exatrines
+site_name: Splatoon Workspace
 site_description: Splatoon scripts and layout documentation
 site_url: https://exatrines.github.io/SplatoonWorkspace/
 repo_url: https://github.com/exatrines/SplatoonWorkspace
@@ -9,8 +9,12 @@ docs_dir: docs
 
 theme:
   name: material
+  language: ja
   logo: assets/logo.jpg
   favicon: assets/logo.jpg
+  font:
+    text: Noto Sans JP
+    code: Roboto Mono
   features:
     - navigation.sections
     - navigation.expand
@@ -22,50 +26,80 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
+      primary: "#fa9fc4"
       accent: indigo
       toggle:
         icon: material/brightness-7
-        name: Dark mode
+        name: ダークモード
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
+      primary: "#fa9fc4"
       accent: indigo
       toggle:
         icon: material/brightness-4
-        name: Light mode
+        name: ライトモード
 
 plugins:
   - search
+  - i18n:
+      docs_structure: folder
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: ja
+          default: true
+          name: 日本語
+          build: true
+        - locale: en
+          name: English
+          build: true
+          site_description: Splatoon scripts and layout documentation (English)
+          theme:
+            language: en
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: "#fa9fc4"
+                accent: indigo
+                toggle:
+                  icon: material/brightness-7
+                  name: Switch to dark mode
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: "#fa9fc4"
+                accent: indigo
+                toggle:
+                  icon: material/brightness-4
+                  name: Switch to light mode
+          nav:
+            - Home: index.md
+            - "[7.x] Dawntrail":
+                - "[7.0] The Minstrel's Ballad: Sphene's Burden":
+                    - Scripts:
+                        - EX3 Coronation: Dawntrail/EX3/Scripts/EX3_Coronation.md
+            - "[6.x] Endwalker":
+                - "[6.3] The Omega Protocol (Ultimate)":
+                    - Scripts:
+                        - P3 Transition: Endwalker/TOP/Scripts/P3_Transition.md
+                        - P5 Dynamis Sigma Relative Tower Finder: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
+                        - P5 Dynamis Sigma Hello World: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
+                        - P5 Dynamis Omega Safe Guide: Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
+                        - P5 Dynamis Omega Hello World: Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
 
 nav:
   - Home: index.md
-  - ja:
-      - "[7.x] 黄金のレガシー":
-          - "[7.0] 極エターナルクイーン討滅線":
-              - Scripts:
-                  - EX3 端末射出: ja/Dawntrail/EX3/Scripts/EX3_Coronation.md
-      - "[6.x] 暁月のフィナーレ":
-          - "[6.3] 絶オメガ検証戦":
-              - Scripts:
-                  - P3 コロッサスブロー: ja/Endwalker/TOP/Scripts/P3_Transition.md
-                  - P5 コード：＊＊＊ミ＊【シグマ】 塔マクロ押さない式ガイド: ja/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
-                  - P5 コード：＊＊＊ミ＊【シグマ】 ハロワ: ja/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
-                  - P5 コード：＊＊＊ミ＊【オメガ】 激せま安置ガイド: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
-                  - P5 コード：＊＊＊ミ＊【オメガ】 ハロワ: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
-  - en:
-      - "[7.x] Dawntrail":
-          - "[7.0] The Minstrel's Ballad: Sphene's Burden":
-              - Scripts:
-                  - EX3 Coronation: en/Dawntrail/EX3/Scripts/EX3_Coronation.md
-      - "[6.x] Endwalker":
-          - "[6.3] The Omega Protocol (Ultimate)":
-              - Scripts:
-                  - P3 Transition: en/Endwalker/TOP/Scripts/P3_Transition.md
-                  - P5 Dynamis Sigma Relative Tower Finder: en/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
-                  - P5 Dynamis Sigma Hello World: en/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
-                  - P5 Dynamis Omega Safe Guide: en/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
-                  - P5 Dynamis Omega Hello World: en/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
+  - "[7.x] 黄金のレガシー":
+      - "[7.0] 極エターナルクイーン討滅線":
+          - Scripts:
+              - EX3 端末射出: Dawntrail/EX3/Scripts/EX3_Coronation.md
+  - "[6.x] 暁月のフィナーレ":
+      - "[6.3] 絶オメガ検証戦":
+          - Scripts:
+              - P3 コロッサスブロー: Endwalker/TOP/Scripts/P3_Transition.md
+              - P5 コード：＊＊＊ミ＊【シグマ】 塔マクロ押さない式ガイド: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
+              - P5 コード：＊＊＊ミ＊【シグマ】 ハロワ: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
+              - P5 コード：＊＊＊ミ＊【オメガ】 激せま安置ガイド: Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
+              - P5 コード：＊＊＊ミ＊【オメガ】 ハロワ: Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
 
 markdown_extensions:
   - pymdownx.superfences
@@ -79,3 +113,6 @@ markdown_extensions:
 
 extra:
   generator: false
+
+extra_css:
+  - stylesheets/header_color.css

@@ -1,16 +1,16 @@
 # P5 Dynamis Sigma Hello World
-## 概要
+## About
 コード：＊＊＊ミ＊【シグマ】におけるハロワ処理をガイドするスクリプトです。**必ずマーカー付与が必要**です。
 
 このスクリプトでは中央のリアユニットからのビーム、オメガFのソードアクションを回避し、役割に応じた最終的な散開位置へガイドします。
 
-## インポート URL
+## Import URL
 
 ```
 https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Sigma_Hello_World.cs
 ```
 
-## 設定
+## Configuration
 
 ![](../../../../assets/endwalker/p5_dynamis_sigma_hello_world_setting.png)
 
@@ -30,8 +30,8 @@ Cw: リアユニットの回転方向が時計回りの場合, Ccw: 反時計周
 
 `/mk attack <me>` マクロを各自押す運用では Attack5・6 が付かないことがあるため、このオプションを有効にすることを推奨します。
 
-## 設定例
-Lilydollマクロの場合は **Import Japanese Strat** を押してください。
+## Sample configuration
+LilyDollマクロの場合は **Import Japanese Strat** を押してください。
 
 - RaidPlan: https://raidplan.io/plan/u98293e225836jcy
 - マクロ: https://jp.finalfantasyxiv.com/lodestone/character/34120564/blog/5178791/

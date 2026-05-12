@@ -1,13 +1,15 @@
 # EX3 Coronation
-## 概要
-極エターナルクイーン討滅線における **端末射出** をガイドするスクリプトです。設定に基づき散開位置へガイドします。
+## About
+極エターナルクイーン討滅戦における端末射出をガイドするスクリプトです。設定に基づき散開位置へガイドします。
 
-## インポート URL
+## Import URL
 URLを開いて内容をコピーし、Splatoon上で「Install from Clipboard」を押してください。
 
+```
 https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Dawntrail/EX3/EX3_Coronation.cs
+```
 
-## 設定
+## Configuration
 
 ![](../../../../assets/dawntrail/ex3_coronation_setting.png)
 

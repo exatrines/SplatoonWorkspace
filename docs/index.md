@@ -1,10 +1,16 @@
 # Splatoon Workspace
 
-Documentation for Splatoon scripts and presets.
+自分が作成したSplatoonのスクリプトや、コンテンツ毎の設定のまとめを共有します。質問や要望、不具合の報告はDiscordにてお願いします。
 
-## Languages
+## for English
+I'm a scriptwriter for Splatoon. This is a place to share Splatoon scripts, layouts, and settings.　
+Please check the English (/en) page. Please send any questions, requests or reports via Discord. Support is accepted via Ko-fi. Thank you.
 
-- [English](en/Endwalker/TOP/Scripts/P3_Transition.md) — [The Omega Protocol (TOP)](en/Endwalker/TOP/Scripts/P3_Transition.md), [Dawntrail EX3](en/Dawntrail/EX3/Scripts/EX3_Coronation.md)
-- [日本語](ja/Endwalker/TOP/Scripts/P3_Transition.md) — [絶オメガ（TOP）](ja/Endwalker/TOP/Scripts/P3_Transition.md), [ダウントレイル EX3](ja/Dawntrail/EX3/Scripts/EX3_Coronation.md)
+## Contact
+discord id : `a_risky_bet`
 
-Use the **search** bar or the left sidebar to open any page. English and Japanese sections are grouped separately.
+## Support
+- [Ko-fi](https://ko-fi.com/exatrines)
+
+## Reference
+- [PunishXIV/Splatoon](https://github.com/PunishXIV/Splatoon)

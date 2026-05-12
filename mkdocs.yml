@@ -9,6 +9,8 @@ docs_dir: docs
 
 theme:
   name: material
+  logo: assets/logo.jpg
+  favicon: assets/logo.jpg
   features:
     - navigation.sections
     - navigation.expand
@@ -38,32 +40,32 @@ plugins:
 
 nav:
   - Home: index.md
-  - English:
-      - Endwalker:
-          - TOP:
-              - Scripts:
-                  - P3 Transition: en/Endwalker/TOP/Scripts/P3_Transition.md
-                  - P5 Dynamis Omega Hello World: en/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
-                  - P5 Dynamis Omega Safe Guide: en/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
-                  - P5 Dynamis Sigma Hello World: en/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
-                  - P5 Dynamis Sigma Relative Tower Finder: en/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
+  - ja:
       - Dawntrail:
-          - EX3:
+          - EX3 極エターナルクイーン討滅線:
+              - Scripts:
+                  - EX3 端末射出: ja/Dawntrail/EX3/Scripts/EX3_Coronation.md
+      - Endwalker:
+          - 絶オメガ検証戦:
+              - Scripts:
+                  - P3 コロッサスブロー: ja/Endwalker/TOP/Scripts/P3_Transition.md
+                  - P5 コード：＊＊＊ミ＊【シグマ】 塔マクロ押さない式ガイド: ja/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
+                  - P5 コード：＊＊＊ミ＊【シグマ】 ハロワ: ja/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
+                  - P5 コード：＊＊＊ミ＊【オメガ】 激せま安置ガイド: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
+                  - P5 コード：＊＊＊ミ＊【オメガ】 ハロワ: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
+  - en:
+      - Dawntrail:
+          - EX3 The Minstrel's Ballad: Sphene's Burden:
               - Scripts:
                   - EX3 Coronation: en/Dawntrail/EX3/Scripts/EX3_Coronation.md
-  - 日本語:
       - Endwalker:
-          - TOP:
+          - The Omega Protocol (Ultimate):
               - Scripts:
-                  - P3 Transition: ja/Endwalker/TOP/Scripts/P3_Transition.md
-                  - P5 Dynamis Omega Hello World: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
-                  - P5 Dynamis Omega Safe Guide: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
-                  - P5 Dynamis Sigma Hello World: ja/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
-                  - P5 Dynamis Sigma Relative Tower Finder: ja/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
-      - Dawntrail:
-          - EX3:
-              - Scripts:
-                  - EX3 Coronation: ja/Dawntrail/EX3/Scripts/EX3_Coronation.md
+                  - P3 Transition: en/Endwalker/TOP/Scripts/P3_Transition.md
+                  - P5 Dynamis Sigma Relative Tower Finder: en/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
+                  - P5 Dynamis Sigma Hello World: en/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
+                  - P5 Dynamis Omega Safe Guide: en/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
+                  - P5 Dynamis Omega Hello World: en/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
 
 markdown_extensions:
   - pymdownx.superfences

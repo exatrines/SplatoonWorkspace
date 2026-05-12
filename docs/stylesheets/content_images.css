@@ -1,0 +1,22 @@
+/* 本文中の画像: 幅 80%・中央（ヘッダー・ドロワーのロゴは .md-typeset 外） */
+.md-content .md-typeset img:not(.twemoji):not(.emojione) {
+  width: 80%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* glightbox のリンクがブロック化されても中央のまま */
+.md-content .md-typeset a.glightbox {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.md-content .md-typeset a.glightbox img {
+  cursor: zoom-in;
+}

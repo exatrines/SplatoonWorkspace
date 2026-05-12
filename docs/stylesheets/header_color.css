@@ -6,11 +6,14 @@
   /* ヘッダー背景が明るいので、ナビ文字・アイコンは暗色（Material の「背景に対する前景」） */
   --md-primary-bg-color: #452b2d;
   --md-primary-bg-color--light: #452b2db3;
+  /* mkdocs.yml の accent: indigo のままだとコードブロックのコピーアイコン等が青くなる */
+  --md-accent-fg-color: #fa9fc4;
 }
 
 @media screen {
   [data-md-color-scheme="slate"][data-md-color-primary="#fa9fc4"] {
-    --md-typeset-a-color: #ff8ec0;
+    --md-typeset-a-color: #fa9fc4;
+    --md-accent-fg-color: #fa9fc4;
   }
 }
 
@@ -35,4 +38,10 @@
 
 [dir="rtl"] .md-header__title {
   margin-right: 0;
+}
+
+/* オーバーレイスクロールでは「つまみそのものへの :hover」が取りづらいので、
+   スクロールする pre にカーソルがあるときだけ WebKit のつまみをピンクにする */
+.md-typeset .highlight pre:hover::-webkit-scrollbar-thumb {
+  background-color: #fa9fc4;
 }

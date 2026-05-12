@@ -79,12 +79,18 @@ plugins:
                         - EX3 Coronation: Dawntrail/EX3/Scripts/EX3_Coronation.md
             - "[6.x] Endwalker":
                 - "[6.3] The Omega Protocol (Ultimate)":
+                    - Home: Endwalker/TOP/index.md
                     - Scripts:
                         - P3 Transition: Endwalker/TOP/Scripts/P3_Transition.md
                         - P5 Dynamis Sigma Relative Tower Finder: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
                         - P5 Dynamis Sigma Hello World: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
                         - P5 Dynamis Omega Safe Guide: Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
                         - P5 Dynamis Omega Hello World: Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
+
+  - glightbox:
+      auto_themed: true
+      effect: zoom
+      zoomable: true
 
 nav:
   - Home: index.md
@@ -94,6 +100,7 @@ nav:
               - EX3 端末射出: Dawntrail/EX3/Scripts/EX3_Coronation.md
   - "[6.x] 暁月のフィナーレ":
       - "[6.3] 絶オメガ検証戦":
+          - Home: Endwalker/TOP/index.md
           - Scripts:
               - P3 コロッサスブロー: Endwalker/TOP/Scripts/P3_Transition.md
               - P5 コード：＊＊＊ミ＊【シグマ】 塔マクロ押さない式ガイド: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
@@ -116,3 +123,4 @@ extra:
 
 extra_css:
   - stylesheets/header_color.css
+  - stylesheets/content_images.css

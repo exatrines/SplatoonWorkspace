@@ -33,8 +33,8 @@ Cw: リアユニットの回転方向が時計回りの場合, Ccw: 反時計周
 ## Sample configuration
 LilyDollマクロの場合は **Import Japanese Strat** を押してください。
 
-- RaidPlan: https://raidplan.io/plan/u98293e225836jcy
-- マクロ: https://jp.finalfantasyxiv.com/lodestone/character/34120564/blog/5178791/
+- [RaidPlan](https://raidplan.io/plan/u98293e225836jcy)
+- [マクロ](https://jp.finalfantasyxiv.com/lodestone/character/34120564/blog/5178791/)
 
 北グループ:
 - `Attack1`: BaitArm（NW担当）

@@ -36,8 +36,8 @@ If your group uses an `/mk attack <me>` macro per player, Attack 5 and 6 may not
 ## Sample configuration
 For Lilydoll macros strategy, press **Import Japanese Strat**.
 
-- RaidPlan: https://raidplan.io/plan/u98293e225836jcy
-- Macro: https://jp.finalfantasyxiv.com/lodestone/character/34120564/blog/5178791/
+- [RaidPlan](https://raidplan.io/plan/u98293e225836jcy)
+- [Macro](https://jp.finalfantasyxiv.com/lodestone/character/34120564/blog/5178791/)
 
 North Group:
 - `Attack1`: BaitArm (Go NorthWest)

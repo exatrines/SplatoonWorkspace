@@ -9,7 +9,7 @@ https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scri
 
 ## 設定
 
-![](../../../../../assets/dawntrail/ex3_coronation_setting.png)
+![](../../../../assets/dawntrail/ex3_coronation_setting.png)
 
 ### Spread Basis（散開の基準）
 北のビットを北西に誘導する場合は NorthWest, 北東に誘導する場合は North を選択してください。

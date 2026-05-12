@@ -9,7 +9,7 @@ https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scri
 
 ## Configuration
 
-![](../../../../../assets/dawntrail/ex3_coronation_setting.png)
+![](../../../../assets/dawntrail/ex3_coronation_setting.png)
 
 ### Spread basis
 

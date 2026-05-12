@@ -1,4 +1,4 @@
-site_name: Splatoon Workspace
+site_name: Splatoon Workspace by exatrines
 site_description: Splatoon scripts and layout documentation
 site_url: https://exatrines.github.io/SplatoonWorkspace/
 repo_url: https://github.com/exatrines/SplatoonWorkspace
@@ -41,12 +41,12 @@ plugins:
 nav:
   - Home: index.md
   - ja:
-      - Dawntrail:
-          - EX3 極エターナルクイーン討滅線:
+      - "[7.x] 黄金のレガシー":
+          - "[7.0] 極エターナルクイーン討滅線":
               - Scripts:
                   - EX3 端末射出: ja/Dawntrail/EX3/Scripts/EX3_Coronation.md
-      - Endwalker:
-          - 絶オメガ検証戦:
+      - "[6.x] 暁月のフィナーレ":
+          - "[6.3] 絶オメガ検証戦":
               - Scripts:
                   - P3 コロッサスブロー: ja/Endwalker/TOP/Scripts/P3_Transition.md
                   - P5 コード：＊＊＊ミ＊【シグマ】 塔マクロ押さない式ガイド: ja/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
@@ -54,12 +54,12 @@ nav:
                   - P5 コード：＊＊＊ミ＊【オメガ】 激せま安置ガイド: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Safe_Guide.md
                   - P5 コード：＊＊＊ミ＊【オメガ】 ハロワ: ja/Endwalker/TOP/Scripts/P5_Dynamis_Omega_Hello_World.md
   - en:
-      - Dawntrail:
-          - EX3 The Minstrel's Ballad: Sphene's Burden:
+      - "[7.x] Dawntrail":
+          - "[7.0] The Minstrel's Ballad: Sphene's Burden":
               - Scripts:
                   - EX3 Coronation: en/Dawntrail/EX3/Scripts/EX3_Coronation.md
-      - Endwalker:
-          - The Omega Protocol (Ultimate):
+      - "[6.x] Endwalker":
+          - "[6.3] The Omega Protocol (Ultimate)":
               - Scripts:
                   - P3 Transition: en/Endwalker/TOP/Scripts/P3_Transition.md
                   - P5 Dynamis Sigma Relative Tower Finder: en/Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md

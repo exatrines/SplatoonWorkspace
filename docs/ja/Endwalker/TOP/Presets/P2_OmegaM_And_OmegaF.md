@@ -42,7 +42,7 @@ https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties
 
 #### URL
 ```
-https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Limitless%20Synergy.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Limitless%20Synergy.cs
 ```
 #### Configuration
 デフォルトから設定を変更する必要はありませんが、視認性を向上させるために色の調整をすることができます。

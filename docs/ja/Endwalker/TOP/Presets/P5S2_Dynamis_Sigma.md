@@ -18,7 +18,7 @@
 
 #### URL
 ```
-https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Dynamis%20Sigma.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Dynamis%20Sigma.cs
 ```
 #### Configuration
 以下の設定をコピーして Save Configration タブで「Paste from clipboard」を押下し、表示される「LilyDoll Macro」を選択してください。
@@ -31,7 +31,7 @@ https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/
 
 #### URL
 ```
-https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Dynamis%20Sigma.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Dynamis%20Sigma.cs
 ```
 #### Configuration
 以下の設定をコピーしてSavec Configration タブで「Paste from clipboard」を押下し、表示される「LilyDoll Macro - Spread Only」を選択してください。
@@ -44,7 +44,7 @@ https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/
 
 #### URL
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Endwalker/TOP/P5_Dynamis_Sigma_Relative_Tower_Finder.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Sigma_Relative_Tower_Finder.cs
 ```
 #### Configuration
 設定不要

@@ -30,7 +30,7 @@ https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScr
 
 #### URL
 ```
-https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Hello%20World.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Hello%20World.cs
 ```
 #### Configuration
 設定不要
@@ -40,7 +40,7 @@ https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/
 
 #### URL
 ```
-https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Oversampled%20Wave%20Cannon.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Oversampled%20Wave%20Cannon.cs
 ```
 #### Configuration
 ![](../../../assets/endwalker/p3_wave_ast_setting.png)
@@ -56,7 +56,7 @@ https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/
 #### URL
 以下のURLを開いてすべてコピーしてSplatooの Install from Clipboard を押下
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonWorkspace/refs/heads/main/Resources/P3_Oversampled_Wave_Cannon_Cross.txt
+https://raw.githubusercontent.com/exatrines/SplatoonWorkspace/refs/heads/main/Resources/P3_Oversampled_Wave_Cannon_Cross.cs
 ```
 #### Configuration
 ![](../../../assets/endwalker/p3_wave_cross_setting.png)

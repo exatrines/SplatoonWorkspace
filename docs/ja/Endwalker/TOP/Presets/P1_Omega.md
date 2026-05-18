@@ -12,7 +12,7 @@
 
 #### URL
 ```
-https://github.com/PunishXIV/Splatoon/raw/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Program%20Loop%20Priority.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Program%20Loop%20Priority.cs
 ```
 #### Configuration
 ![](../../../../assets/endwalker/p1_loop_setting.png)
@@ -22,7 +22,7 @@ https://github.com/PunishXIV/Splatoon/raw/refs/heads/main/SplatoonScripts/Duties
 
 #### URL
 ```
-https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Pantokrator.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Pantokrator.cs
 ```
 #### Configuration
 デフォルトから設定を変更する必要はありませんが、視認性を向上させるために色の調整をすることができます。

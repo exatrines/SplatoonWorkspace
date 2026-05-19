@@ -1,0 +1,33 @@
+/* Back to top lives in the article column; hide the global theme footer bar */
+.md-footer {
+  display: none;
+}
+
+.md-page-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 0.05rem solid var(--md-default-fg-color--lightest);
+}
+
+.md-footer__back-to-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color 125ms;
+}
+
+.md-footer__back-to-top:hover,
+.md-footer__back-to-top:focus-visible {
+  color: var(--md-accent-fg-color);
+}
+
+.md-footer__back-to-top-icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}

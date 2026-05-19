@@ -1,0 +1,13 @@
+{#-
+  In-page footer: back to top within the main content column (not under the sidebar).
+-#}
+{% import "partials/language.html" as lang with context %}
+<footer class="md-page-footer" aria-label="{{ lang.t('top') }}">
+  <a href="#" class="md-footer__back-to-top" aria-label="{{ lang.t('top') }}">
+    <span class="md-footer__back-to-top-icon md-icon">
+      {% set icon = config.theme.icon.top or "material/arrow-up" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </span>
+    {{ lang.t("top") }}
+  </a>
+</footer>

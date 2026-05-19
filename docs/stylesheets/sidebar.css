@@ -1,0 +1,26 @@
+/* サイドバー先頭のサイト名（Splatoon Workspace）を非表示 */
+.md-nav--primary > .md-nav__title {
+  display: none;
+}
+
+/* Home をサイドバーから非表示（nav には残し i18n の homepage として維持） */
+.md-nav--primary > .md-nav__list > .md-nav__item:first-child:not(.md-nav__item--section) {
+  display: none;
+}
+
+/* トップレベルセクションタイトル（黄金のレガシー / 暁月のフィナーレ 等）の下に区切り線 */
+.md-nav--primary > .md-nav__list > .md-nav__item--section > .md-nav__link {
+  border-bottom: 0.05rem solid var(--md-default-fg-color--lightest);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-weight: 900;
+}
+
+/* セクション間の余白 */
+.md-nav--primary > .md-nav__list > .md-nav__item--section + .md-nav__item--section {
+  margin-top: 1.25rem;
+}
+
+.md-main__inner.md-grid {
+  margin-top: 0;
+}

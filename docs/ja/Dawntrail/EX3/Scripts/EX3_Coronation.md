@@ -6,7 +6,7 @@
 URLを開いて内容をコピーし、Splatoon上で「Install from Clipboard」を押してください。
 
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Dawntrail/EX3/EX3_Coronation.cs
+https://raw.githubusercontent.com/exatrines/SplatoonWorkspace/refs/heads/main/Resources/EX3_Coronation.cs
 ```
 
 ## Configuration

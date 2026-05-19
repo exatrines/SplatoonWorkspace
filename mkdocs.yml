@@ -9,6 +9,7 @@ docs_dir: docs
 
 theme:
   name: material
+  custom_dir: overrides
   language: ja
   logo: assets/logo.jpg
   favicon: assets/logo.jpg
@@ -132,3 +133,8 @@ extra_css:
   - stylesheets/header_color.css
   - stylesheets/content_images.css
   - stylesheets/hide_toc.css
+  - stylesheets/footer_back_to_top.css
+  - stylesheets/sidebar.css
+
+extra_javascript:
+  - javascripts/footer_back_to_top.js

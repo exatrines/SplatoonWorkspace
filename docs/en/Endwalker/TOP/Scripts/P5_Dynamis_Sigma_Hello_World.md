@@ -26,15 +26,15 @@ Configure which group the marker and debuff operators are assigned to, and where
 
 Cw: When the rear unit rotates clockwise; Ccw: When it rotates counterclockwise
 
-Waining: Because of how the mechanic, you cannot reposition by editing elements; use the configuration table instead.
+Warning: Because of how the mechanic works, you cannot reposition by editing elements; use the configuration table instead.
 
 ### Resolve BaitNear
-Near bait is resolved using the two players not assigned to any role in the table, instead of relying on markers. When enabled, the BaitNear1 and Bait2 options are hidden and tethers appear at both bait positions. 
+Near bait is resolved using the two players not assigned to any role in the table, instead of relying on markers. When enabled, the BaitNear1 and BaitNear2 options are hidden and tethers appear at both bait positions. 
 
 If your group uses an `/mk attack <me>` macro per player, Attack 5 and 6 may not apply; enabling this option is recommended.
 
 ## Sample configuration
-For Lilydoll macros strategy, press **Import Japanese Strat**.
+For LilyDoll macros strategy, press **Import Japanese Strat**.
 
 - [RaidPlan](https://raidplan.io/plan/u98293e225836jcy)
 - [Macro](https://jp.finalfantasyxiv.com/lodestone/character/34120564/blog/5178791/)

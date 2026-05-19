@@ -6,7 +6,7 @@ This script guides Coronation in Sphene’s Burden. Based on your configuration,
 Open the URL, copy the content, and then click “Install from Clipboard” in Splatoon.
 
 ```
-https://raw.githubusercontent.com/exatrines/SplatoonPresets/refs/heads/main/Scripts/Dawntrail/EX3/EX3_Coronation.cs
+https://raw.githubusercontent.com/exatrines/SplatoonWorkspace/refs/heads/main/Resources/EX3_Coronation.cs
 ```
 
 ## Configuration

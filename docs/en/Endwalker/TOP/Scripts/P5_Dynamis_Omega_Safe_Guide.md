@@ -8,7 +8,7 @@ Please check RaidPlan for safe position calculation rules.
 
 - [RaidPlan](https://raidplan.io/plan/8pg3fwucr83ydbxy)
 
-Note: In the Sword and Staff pattern, you will be guided toward the narrow safe zone rather than the outer edge of the circule area.
+Note: In the Sword and Staff pattern, you will be guided toward the narrow safe zone rather than the outer edge of the circle area.
 
 To improve visibility, we recommend hiding or reducing the transparency of the layout displaying AOE. For example, the following official layout is an example of this.
 

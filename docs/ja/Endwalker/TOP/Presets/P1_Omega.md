@@ -17,18 +17,18 @@ https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScr
 #### Configuration
 ![](../../../../assets/endwalker/p1_loop_setting.png)
 
-### P1 パンクラ
+### P1 パントクラトル
 直線頭割りとAOEの範囲が表示されます。優先度によるグループ分けは行われないので注意が必要です。
 
 #### URL
 ```
-https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Pantokrator.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Pantokrator.cs
 ```
 #### Configuration
 デフォルトから設定を変更する必要はありませんが、視認性を向上させるために色の調整をすることができます。
 
-### P1 パンクラ無敵タイミングアナウンス
-無敵を押すタイミングが頭上に表示されます。
+### P1 パントクラトル タンク無敵タイミングアナウンス
+無敵を押すタイミングが頭上に表示されます。タンク以外は導入不要です。
 
 #### URL
 ```

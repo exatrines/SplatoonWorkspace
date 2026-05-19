@@ -14,27 +14,27 @@
 
 ## スクリプト
 ### P5 シグマ（塔Wingman式）
-整列、波動砲の散会、踏む塔がガイドされます。
+整列、波動砲の散開、踏む塔がガイドされます。
 
 #### URL
 ```
-https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Dynamis%20Sigma.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Dynamis%20Sigma.cs
 ```
 #### Configuration
-以下の設定をコピーして Save Configration タブで「Paste from clipboard」を押下し、表示される「LilyDoll Macro」を選択してください。
+以下の設定をコピーして Saved Configuration タブで「Paste from clipboard」を押下し、表示される「LilyDoll Macro」を選択してください。
 ```
 {"TargetScriptName":"SplatoonScriptsOfficial.Duties.Endwalker.The_Omega_Protocol@Dynamis_Sigma","ConfigurationName":"LilyDoll Macro","Configuration":"Gz4DABwHbqwza9RoKC+lTsN7suz+Wrrpa9TnhGq3ZjpQvCLIuRzp35/T9QOd6e6rxCq0sADn3ebWsLaL8BHUUFdi9DkWmNyfxQT1OZUT+lhWzdr/Htxn0iAS1GpOpJ2LUjSOEq+rzJQq5WzyooCBK7CQg4IEUtDXDK5UGlPLNp4LIylsKTnGrcc41MwG/0rrp3rXyU3/TVpMqoaKKocO7+Hx0bByIAnT7LxMOfpQ4q+Fn9KcqZytkI9A/KTcJ0eDCkivRaCqNrbRHmaWghZwquqQsskItslC6ptHFKk0V3o7G/Vi5G1m/c7XnVDKWw/5wRcoaY4KlTQmIg==","Overrides":null}
 ```
 
 ### P5 シグマ（塔マクロ押さない式） - 波動砲散開スクリプト
-整列、波動砲の散会がガイドされます。塔踏みはこの設定ではガイドされないので、後述の塔踏みスクリプトも必ずインポートしてください。
+整列、波動砲の散開がガイドされます。塔踏みはこの設定ではガイドされないので、後述の塔踏みスクリプトも必ずインポートしてください。
 
 #### URL
 ```
-https://raw.githubusercontent.com/PunishXIV/Splatoon/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Dynamis%20Sigma.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Dynamis%20Sigma.cs
 ```
 #### Configuration
-以下の設定をコピーしてSavec Configration タブで「Paste from clipboard」を押下し、表示される「LilyDoll Macro - Spread Only」を選択してください。
+以下の設定をコピーしてSaved Configuration タブで「Paste from clipboard」を押下し、表示される「LilyDoll Macro - Spread Only」を選択してください。
 ```
 {"TargetScriptName":"SplatoonScriptsOfficial.Duties.Endwalker.The_Omega_Protocol@Dynamis_Sigma","ConfigurationName":"LilyDoll Macro - Spread Only","Configuration":"GzkDABwHbqwza9RoKC+lTsN7suz+Wrrpa9TnhGq3ZjpQvCLIuRzp4E2tD5r5VF7v4Pug+T1Ulm02VmqEj6DEzRqLPofBovuzGKE+p3JCGcvELP/vwXomDSJCLTdE2jkveWMqsrvKVEkgZ5tXUmgUDxc/FTiM1+nGIRimzja7WVE9o7SVHOPWYwjKZhV6JXdRv9ekpv8mOR3VQEUCn4O7f3wIrAZIimY2X5AcfiT+lzNPycEIXMvnIwc/8nvlsFsJ0MvJp7qNXbSHpkKQc011A2IgGZJr0om8dIiBSg6ltHNRL6peM+t7vu4Eo91m0Ae+BOPlMGGqYiIC","Overrides":null}
 ```
@@ -57,4 +57,4 @@ https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScr
 https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/P5_Dynamis_Sigma_Hello_World.cs
 ```
 #### Configuration
-リリドマクロの場合は **Import Japanese Strat** を押してください。マーキングがリリドと違う場合（例: 足止めマーカーを使用する場合など）についての設定は [P5_Dynamis_Sigma_Hello_World](../Scripts/P5_Dynamis_Sigma_Hello_World.md)を確認してください。不明点があれば連絡してください。
+リリドマクロの場合は **Import Japanese Strat** を押してください。マーキングがリリドと違う場合（例: 足止めマーカーを使用する場合など）についての設定は [P5_Dynamis_Sigma_Hello_World](../Scripts/P5_Dynamis_Sigma_Hello_World.md) を確認してください。不明点があれば連絡してください。

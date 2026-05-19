@@ -13,7 +13,7 @@
 ```
 
 ## スクリプト
-## P6 マルチスクリプト
+### P6 マルチスクリプト
 AAの対象者とその範囲、コスモダイブの対象とその範囲、コスモメテオの小メテオの範囲などが表示されます。
 
 #### URL
@@ -21,7 +21,7 @@ AAの対象者とその範囲、コスモダイブの対象とその範囲、コ
 https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/P6%20MultiScript.cs
 ```
 #### Configuration
-`Wave Canon` / `Cosmo Dive Spread Marker` の設定が必要です。ロールによって設定が異なります。`Cosmo Dive` とありますが、コスモメテオの散開位置誘導設定なので注意してください。
+`Wave Cannon` / `Cosmo Dive Spread Marker` の設定が必要です。ロールによって設定が異なります。`Cosmo Dive` とありますが、コスモメテオの散開位置誘導設定なので注意してください。
 ![](../../../../assets/endwalker/p6_multi_setting.png)
 
 ### P6 コスモアロー
@@ -29,7 +29,7 @@ https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScr
 
 #### URL
 ```
-https://github.com/PunishXIV/Splatoon/raw/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Exasquares.cs
+https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Exasquares.cs
 ```
 #### Configuration
 設定不要。

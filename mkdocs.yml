@@ -80,6 +80,7 @@ plugins:
             - "[6.x] Endwalker":
                 - "[6.3] The Omega Protocol (Ultimate)":
                     - Scripts:
+                        - P1 Pantokrator Priority: Endwalker/TOP/Scripts/P1_Pantokrator_Priority.md
                         - P3 Transition: Endwalker/TOP/Scripts/P3_Transition.md
                         - P5 Dynamis Sigma Relative Tower Finder: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
                         - P5 Dynamis Sigma Hello World: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md
@@ -110,6 +111,7 @@ nav:
             - "P5 コード：＊＊＊ミ＊【オメガ】": Endwalker/TOP/Presets/P5S3_Dynamis_Omega.md
             - "P6 アルファオメガ": Endwalker/TOP/Presets/P6_Alpha_Omega.md
           - Scripts:
+              - P1 パントクラトル 優先度処理: Endwalker/TOP/Scripts/P1_Pantokrator_Priority.md
               - P3 コロッサスブロー: Endwalker/TOP/Scripts/P3_Transition.md
               - P5 コード：＊＊＊ミ＊【シグマ】 塔マクロ押さない式ガイド: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Relative_Tower_Finder.md
               - P5 コード：＊＊＊ミ＊【シグマ】 ハロワ: Endwalker/TOP/Scripts/P5_Dynamis_Sigma_Hello_World.md

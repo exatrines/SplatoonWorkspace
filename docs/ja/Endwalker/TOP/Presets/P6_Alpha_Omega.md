@@ -42,5 +42,4 @@ https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScr
 https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/Cosmo%20Meteor%20Adjuster.cs
 ```
 #### Configuration
-このスクリプトは PriorityEditor からではなく名前を入力する必要があるので注意してください。
-![](../../../../assets/endwalker/p6_meteor_setting.png)
+![](../../../../assets/endwalker/p6_meteor_setting_new.png)

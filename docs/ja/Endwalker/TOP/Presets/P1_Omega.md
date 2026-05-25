@@ -27,6 +27,19 @@ https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScr
 #### Configuration
 デフォルトから設定を変更する必要はありませんが、視認性を向上させるために色の調整をすることができます。
 
+### P1 パントクラトル 優先度処理
+優先度に基づき北or南のグループ分け、パンクラ中の頭割りorAOE処理、波動砲の散開がガイドされます。
+
+#### URL
+```
+https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/P1_Pantokrator_Priority.cs
+```
+#### Configuration
+![](../../../../assets/endwalker/p1_panto_prio_setting.png)
+
+波動砲の散開位置設定(Wavecannon spread direction)はロールごとに設定を変更する必要があります。次の表を参考にしてください。
+![](../../../../assets/endwalker/p1_panto_wave.png)
+
 ### P1 パントクラトル タンク無敵タイミングアナウンス
 無敵を押すタイミングが頭上に表示されます。タンク以外は導入不要です。
 

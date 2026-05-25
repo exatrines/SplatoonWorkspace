@@ -19,5 +19,4 @@
 https://raw.githubusercontent.com/PunishXIV/Splatoon/refs/heads/main/SplatoonScripts/Duties/Endwalker/The%20Omega%20Protocol/BSOD%20Adjuster.cs
 ```
 #### Configuration
-このスクリプトは PriorityEditor からではなく名前を入力する必要があるので注意してください。
-![](../../../../assets/endwalker/p4_wave_setting.png)
+![](../../../../assets/endwalker/p4_wave_setting_new.png)

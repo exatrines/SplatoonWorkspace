@@ -77,6 +77,9 @@ plugins:
                 - "[7.0] The Minstrel's Ballad: Sphene's Burden":
                     - Scripts:
                         - EX3 Coronation: Dawntrail/EX3/Scripts/EX3_Coronation.md
+                - "[7.1] Futures Rewritten (Ultimate)":
+                    - Scripts:
+                        - P1 Utopian Sky: Dawntrail/FRU/Scripts/P1_Utopian_Sky.md
             - "[6.x] Endwalker":
                 - "[6.3] The Omega Protocol (Ultimate)":
                     - Scripts:
@@ -98,6 +101,9 @@ nav:
       - "[7.0] 極エターナルクイーン討滅線":
           - Scripts:
               - EX3 端末射出: Dawntrail/EX3/Scripts/EX3_Coronation.md
+      - "[7.1] 絶もうひとつの未来":
+          - Scripts:
+              - P1 楽園絶技: Dawntrail/FRU/Scripts/P1_Utopian_Sky.md
   - "[6.x] 暁月のフィナーレ":
       - "[6.3] 絶オメガ検証戦":
           - 絶オメガ検証戦 まとめ: Endwalker/TOP/index.md

@@ -143,6 +143,7 @@ extra_css:
   - stylesheets/hide_toc.css
   - stylesheets/footer_back_to_top.css
   - stylesheets/sidebar.css
+  - stylesheets/github_like_typography.css
 
 extra_javascript:
   - javascripts/footer_back_to_top.js

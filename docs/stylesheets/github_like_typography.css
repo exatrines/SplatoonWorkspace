@@ -1,0 +1,132 @@
+/* GitHub-like typography tuning for Material for MkDocs */
+
+/* Base type size: slightly smaller than Material default */
+:root {
+  --sw-body-font-size: 0.76rem;
+  --sw-nav-font-size: 0.68rem;
+  --sw-heading-border: #d0d7de;
+  --sw-content-max-width: 980px;
+  --sw-code-bg: #f6f8fa;
+  --sw-code-border: #d0d7de;
+  --sw-inline-code-bg: rgba(175, 184, 193, 0.2);
+  --sw-quote-border: #d0d7de;
+  --sw-quote-color: #57606a;
+  --sw-quote-bg: #f6f8fa;
+}
+
+[data-md-color-scheme="slate"] {
+  --sw-heading-border: #3d444d;
+  --sw-code-bg: #161b22;
+  --sw-code-border: #30363d;
+  --sw-inline-code-bg: rgba(110, 118, 129, 0.4);
+  --sw-quote-border: #3d444d;
+  --sw-quote-color: #8b949e;
+  --sw-quote-bg: #0d1117;
+}
+
+.md-typeset {
+  font-size: var(--sw-body-font-size);
+  line-height: 1.6;
+}
+
+/* GitHub-style heading rhythm and underline markers */
+.md-typeset h1 {
+  font-size: 1.8em;
+  line-height: 1.25;
+  margin: 1.1em 0 0.7em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--sw-heading-border);
+}
+
+.md-typeset h2 {
+  font-size: 1.45em;
+  line-height: 1.3;
+  margin: 1.2em 0 0.6em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid var(--sw-heading-border);
+}
+
+.md-typeset h3 {
+  font-size: 1.2em;
+  line-height: 1.35;
+  margin: 1em 0 0.45em;
+}
+
+/* Tighter navigation to avoid oversized sidebar blocks */
+.md-nav {
+  font-size: var(--sw-nav-font-size);
+}
+
+.md-nav__item {
+  margin-top: 0.1rem;
+}
+
+.md-nav__link {
+  line-height: 1.35;
+}
+
+/* Prevent awkward line breaks in sidebar labels */
+.md-nav__title,
+.md-nav__link {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* GitHub-like content width and side padding */
+.md-content__inner {
+  max-width: var(--sw-content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0.9rem;
+  padding-right: 0.9rem;
+}
+
+/* GitHub-like code blocks and inline code */
+.md-typeset pre > code {
+  background-color: var(--sw-code-bg);
+  border: 1px solid var(--sw-code-border);
+  border-radius: 6px;
+  padding: 0.95em 1em;
+}
+
+.md-typeset code:not(pre code) {
+  background-color: var(--sw-inline-code-bg);
+  border-radius: 6px;
+  padding: 0.14em 0.35em;
+}
+
+/* Harmonize list spacing */
+.md-typeset ul,
+.md-typeset ol {
+  margin-top: 0.6em;
+  margin-bottom: 0.9em;
+  padding-left: 1.45em;
+}
+
+.md-typeset li + li {
+  margin-top: 0.2em;
+}
+
+.md-typeset li > ul,
+.md-typeset li > ol {
+  margin-top: 0.25em;
+  margin-bottom: 0.35em;
+}
+
+/* GitHub-style blockquotes */
+.md-typeset blockquote {
+  color: var(--sw-quote-color);
+  border-left: 0.25em solid var(--sw-quote-border);
+  background-color: var(--sw-quote-bg);
+  padding: 0.2em 1em;
+  margin: 0 0 1em;
+}
+
+.md-typeset blockquote > :first-child {
+  margin-top: 0.6em;
+}
+
+.md-typeset blockquote > :last-child {
+  margin-bottom: 0.6em;
+}
